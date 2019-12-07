@@ -1,0 +1,50 @@
+{
+  "name": "socket-sorcerer",
+  "version": "1.0.0",
+  "description": "Websocket framework",
+  "author": "Paul Lazunko <plavel@gmail.com>",
+  "keywords": [
+    "node.js",
+    "websocket"
+  ],
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paul-Lazunko/socket-sorcerer.git"
+  },
+  "config": {
+    "mainJs": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc && tslint src/**/*.ts{,x}",
+    "tslint": "tslint src/**/*.ts{,x}",
+    "postinstall": "tsc"
+  },
+  "dependencies": {
+    "@hapi/joi": ">=15.0.0",
+    "esm": "^3.2.25",
+    "http": "^0.0.0",
+    "ws": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/hapi__joi": "^15.0.4",
+    "@types/node": "^9.4.6",
+    "@types/ws": "^6.0.3",
+    "husky": "3.0.0",
+    "ts-node": "^5.0.0",
+    "tslint": "^5.9.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.5.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run tslint"
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/Paul-Lazunko/socket-sorcerer/issues"
+  },
+  "homepage": "https://github.com/Paul-Lazunko/socket-sorcerer#readme",
+  "main": "dist/index.js"
+}

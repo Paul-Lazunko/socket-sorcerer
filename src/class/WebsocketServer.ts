@@ -1,8 +1,9 @@
 import { EventEmitter } from 'events';
 import { Server } from 'ws';
-import { IServerOptions } from '../interfaces';
-import { uidHelper } from '../helpers';
-import { PING_EVENT_NAME, PONG_EVENT_NAME } from '../constants';
+import { IServerOptions } from '../interface';
+import { uidHelper } from '../helper';
+import { PING_EVENT_NAME, PONG_EVENT_NAME } from '../constant';
+import {SocketManager} from "./SocketManager";
 
 export class WebsocketServer {
   private server: Server;
@@ -12,6 +13,7 @@ export class WebsocketServer {
   private sockets: Map<string,any>;
   private users: Map<string,string[]>;
   private rooms: Map<string,string[]>;
+  private manager: SocketManager;
   private readonly pingInterval: number;
   private readonly pingTimeout: number;
   private readonly authTimeout: number;
@@ -19,20 +21,26 @@ export class WebsocketServer {
   private readonly authEventHandler: (value: string) => Promise<string>;
 
   constructor(options: IServerOptions) {
-    this.eventEmitter = new EventEmitter();
-    for ( const event in options.events) {
-      this.eventEmitter.on(event, options.events[event]);
-    }
-    this.sockets = new Map<string, any>();
     this.pingTimers = new Map<string, NodeJS.Timer>();
     this.authTimers = new Map<string, NodeJS.Timer>();
-    this.users = new Map<string, string[]>();
-    this.rooms = new Map<string, string[]>();
     this.pingInterval = options.pingInterval;
     this.pingTimeout = options.pingTimeout;
     this.authEventName = options.authenticate.eventName;
     this.authEventHandler = options.authenticate.eventHandler;
     this.authTimeout = options.authenticate.authTimeout;
+    this.sockets = new Map<string, any>();
+    this.users = new Map<string, string[]>();
+    this.rooms = new Map<string, string[]>();
+    this.manager = new SocketManager({
+      rooms: this.rooms,
+      users: this.users,
+      sockets: this.sockets
+    });
+    this.eventEmitter = new EventEmitter();
+    for ( const event in options.events) {
+      console.log(options.events[event], event)
+      this.eventEmitter.on(event, options.events[event].bind(this.manager));
+    }
     this.server = new Server(options.serverOptions);
     this.server.on('connection', this.onConnection.bind(this));
   }
@@ -57,6 +65,14 @@ export class WebsocketServer {
       if ( !user.length ) {
         this.users.delete(uid);
       }
+      this.rooms.forEach((room: string[], roomName: string) => {
+        if ( room.includes(uid) ) {
+          room.splice(room.indexOf(uid),1);
+          if ( !room.length ) {
+            this.rooms.delete(roomName);
+          }
+        }
+      })
     }
     console.log(`disconnected ${id}`)
   }
@@ -104,12 +120,14 @@ export class WebsocketServer {
               this.authTimers.delete(id);
               const userExists: boolean = !! self.users.get(uid);
               if ( ! userExists ) {
-                self.users.set(uid, [id])
+                self.users.set(uid, [id]);
               } else {
                 if ( !self.users.get(uid).includes(id) ) {
                   self.users.get(uid).push(id);
                 }
               }
+              this.manager.join(uid, uid);
+              this.eventEmitter.emit('connection', id, uid);
               console.log(self.users);
             } catch ( error ) {
               socket.close();

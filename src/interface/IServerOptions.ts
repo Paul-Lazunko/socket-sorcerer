@@ -1,7 +1,7 @@
 import { ServerOptions } from 'ws';
 import { ISocketAuthenticateOptions } from './ISocketAuthenticateOptions';
 import { IDictionary } from './IDictionary';
-import { TEventHandler } from '../types';
+import { TEventHandler } from '../type';
 
 export interface IServerOptions {
   serverOptions: ServerOptions

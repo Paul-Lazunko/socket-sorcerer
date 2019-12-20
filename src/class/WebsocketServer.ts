@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Server } from 'ws';
-import { IServerOptions } from '../interface';
+import {IMessageParams, IServerOptions} from '../interface';
 import { uidHelper } from '../helper';
 import { PING_EVENT_NAME, PONG_EVENT_NAME } from '../constant';
 import {SocketManager} from "./SocketManager";
@@ -72,7 +72,8 @@ export class WebsocketServer {
             this.rooms.delete(roomName);
           }
         }
-      })
+      });
+      this.eventEmitter.emit('disconnect', uid)
     }
     console.log(`disconnected ${id}`)
   }
@@ -97,7 +98,7 @@ export class WebsocketServer {
 
     socket.on('message', async (data: string) => {
       try {
-        const params = JSON.parse(data);
+        const params: IMessageParams = JSON.parse(data);
         console.log('received data', params);
         switch (params.event) {
           case PONG_EVENT_NAME:
@@ -127,7 +128,7 @@ export class WebsocketServer {
                 }
               }
               this.manager.join(uid, uid);
-              this.eventEmitter.emit('connection', id, uid);
+              this.eventEmitter.emit('connect', id, uid);
               console.log(self.users);
             } catch ( error ) {
               socket.close();

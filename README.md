@@ -6,7 +6,7 @@ In comparison with other libraries it has next advantages:
 - already implemented reconnects, pinging, authentication etc
 - the simplest implementation of full functionality in less rows of Your code
 - easily integration in any application
-
+git
 Build server:
 ```ecmascript 6
 import { WebsocketServer } from 'socket-sorcerer';

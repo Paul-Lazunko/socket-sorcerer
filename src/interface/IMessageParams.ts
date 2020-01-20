@@ -1,4 +1,5 @@
 export interface IMessageParams {
-  event: string,
-  data: any
+  data?: any
+  event?: string,
+  room?: string,
 }

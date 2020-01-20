@@ -1,2 +1,2 @@
-export { WebsocketServer } from './class'
-export { IServerOptions } from './interface'
+export { WebsocketServer, WebSocketClient } from './class'
+export { IServerOptions, IClientOptions } from './interface'

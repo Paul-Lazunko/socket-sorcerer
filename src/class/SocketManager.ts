@@ -1,4 +1,5 @@
 import { ISocketManagerOptions } from '../interface';
+import { checkCompletion } from '../helper';
 
 export class SocketManager {
   private rooms: Map<string, string[]>;
@@ -30,7 +31,7 @@ export class SocketManager {
     }
   }
 
-  public to(roomName: string, event: string, data: any): void {
+  private sendTo(roomName: string, eventName: string, data: any): void {
     const room: string[] = this.getRoom(roomName);
     if ( room ) {
       const sockets: string[] = [];
@@ -40,9 +41,28 @@ export class SocketManager {
           sockets.push(socketId);
         })
       });
+      data.room = roomName;
       sockets.forEach((socketId: string) => {
-        this.sockets.get(socketId).send(JSON.stringify({ event, data}));
+        this.sockets.get(socketId).send(JSON.stringify({ data, event: eventName }));
       })
+    }
+  }
+
+  public to (roomName: string) {
+    let eventName: string;
+    let data: string;
+    const self = this;
+    return {
+      event(name: string) {
+        eventName = name;
+        const isComplete: boolean = checkCompletion(roomName, eventName, data, self.sendTo.bind(self));
+        return isComplete ? {} : this;
+      },
+      data(obj: any) {
+        data = obj;
+        const isComplete: boolean = checkCompletion(roomName, eventName, data, self.sendTo.bind(self));
+        return isComplete ? {} : this;
+      }
     }
   }
 

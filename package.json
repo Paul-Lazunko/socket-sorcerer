@@ -1,6 +1,6 @@
 {
   "name": "socket-sorcerer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Websocket framework",
   "author": "Paul Lazunko <plavel@gmail.com>",
   "keywords": [
@@ -12,22 +12,19 @@
     "type": "git",
     "url": "git+https://github.com/Paul-Lazunko/socket-sorcerer.git"
   },
-  "config": {
-    "mainJs": "dist/index.js"
-  },
   "scripts": {
     "build": "tsc && tslint src/**/*.ts{,x}",
     "tslint": "tslint src/**/*.ts{,x}",
     "postinstall": "tsc"
   },
   "dependencies": {
-    "@hapi/joi": ">=15.0.0",
+    "@hapi/joi": "15.0.0",
     "esm": "^3.2.25",
     "http": "^0.0.0",
     "ws": "^7.2.0"
   },
   "devDependencies": {
-    "@types/hapi__joi": "^15.0.4",
+    "@types/hapi__joi": "15.0.0",
     "@types/node": "^9.4.6",
     "@types/ws": "^6.0.3",
     "husky": "3.0.0",

@@ -38,7 +38,6 @@ export class WebsocketServer {
     });
     this.eventEmitter = new EventEmitter();
     for ( const event in options.events) {
-      console.log(options.events[event], event)
       this.eventEmitter.on(event, options.events[event].bind(this.manager));
     }
     this.server = new Server(options.serverOptions);
@@ -75,7 +74,6 @@ export class WebsocketServer {
       });
       this.eventEmitter.emit('disconnect', uid)
     }
-    console.log(`disconnected ${id}`)
   }
 
   private onConnection(socket: any) {
@@ -85,8 +83,6 @@ export class WebsocketServer {
     const id = uidHelper();
 
     let uid: string | undefined = undefined;
-
-    console.log(`connected ${id}`);
 
     this.sockets.set(id, socket);
 
@@ -99,7 +95,6 @@ export class WebsocketServer {
     socket.on('message', async (data: string) => {
       try {
         const params: IMessageParams = JSON.parse(data);
-        console.log('received data', params);
         switch (params.event) {
           case PONG_EVENT_NAME:
             let timeout: NodeJS.Timer = self.pingTimers.get(id);
@@ -128,8 +123,7 @@ export class WebsocketServer {
                 }
               }
               this.manager.join(uid, uid);
-              this.eventEmitter.emit('connect', id, uid);
-              console.log(self.users);
+              this.eventEmitter.emit('connect', uid);
             } catch ( error ) {
               socket.close();
             }
@@ -138,8 +132,8 @@ export class WebsocketServer {
             this.eventEmitter.emit(params.event, params.data, uid, socket);
             break;
         }
-      } catch(e) {
-        console.log({e})
+      } catch( error ) {
+        console.log({ error });
       }
     });
     self.setSocketTimer(socket, id);
@@ -154,5 +148,9 @@ export class WebsocketServer {
       socket.close();
     }, this.pingTimeout));
     this.emit(socket, PING_EVENT_NAME, {});
+  }
+
+  public getManager() {
+    return this.manager;
   }
 }

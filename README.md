@@ -1,12 +1,13 @@
 ```shell script
-npm i -s 'socket-sorcerer';
+npm i -s socket-sorcerer;
 ```
-Socket Sorcerer is a light-weight WebSocket framework based on 'ws' package. 
+**Socket Sorcerer** is a light-weight WebSocket framework based on 'ws' package.
+ 
 In comparison with other libraries it has next advantages:
 - already implemented reconnects, pinging, authentication etc
 - the simplest implementation of full functionality in less rows of Your code
 - easily integration in any application
-git
+
 Build server:
 ```ecmascript 6
 import { WebsocketServer } from 'socket-sorcerer';
@@ -15,27 +16,19 @@ import { createServer } from 'http';
 const server = createServer().listen(8088);
 
 const wss = new WebsocketServer({
-  // see ws.ServerOptions
   serverOptions: {
     server
   },
-  // interval between to ping probes in milliseconds
   pingInterval: 5000,
-  // value when connection will be closed after ping probe in milliseconds
   pingTimeout: 5000,
   authenticate: {
-    // Your custom authenticate event Name, should be implemented on client side too
     eventName: 'auth',
-    // Your custom authenticate event handler which should take provided from client side token and return user id
     async eventHandler(token) {
-      // do something to authenticate user by provided token
       const user = { _id: '5e1c62a969a07513e8f99a73' };
       return user._id;
     },
-    // value when connection will be closed after auth probe in milliseconds
     authTimeout: 3000
   },
-  // Server side event handlers, all of them besides 'connect' and 'disconnect' take two args (data and uid)
   events: {
     connect (uid) {
       wss.getManager().join('test', uid);
@@ -44,7 +37,6 @@ const wss = new WebsocketServer({
       console.log({data, uid})
     },
     disconnect (uid) {
-      // handle disconnect from WebSocket server
     }
   }
 });
@@ -54,22 +46,25 @@ const manager = wss.getManager();
 manager.to('test').event('test').data({ testMode: true });
 ```
 
-Build client at the front end side:
+###### Server Options:
+ - **serverOptions**: see ws.ServerOptions
+ - **pingInterval**: interval between to ping probes in milliseconds,
+ - **pingTimeout**: value when connection will be closed after ping probe fails in milliseconds,
+ - **authenticate.eventName**: Your custom authenticate event name, should be implemented on client side too,
+ - **authenticate.eventHandler**: Your custom authenticate event handler which should take provided from client side token and return user id
+ - **authenticate.authTimeout**: value when connection will be closed after auth probe fails in milliseconds
+ - **events**: Server side event handlers, all of them besides 'connect' and 'disconnect' take two args (data and uid)
+
+###### Build client at the front end side:
 ```ecmascript 6
 import { WebSocketClient } from 'socket-sorcerer';
 
 const ws = new WebSocketClient({
-  // Previously created WebSocket Server URL
   serverUrl: 'ws://localhost:8088',
-  // Personal token for authentication
   token: 'clientPersonalToken',
-  // Boolean identifier which indicate to do reconnects, recommended value is true
   doReconnectOnClose: true,
-  // Interval between reconnect attempts in milliseconds
   reconnectInterval: 5000,
-  // Authenticate event name the same as the server side
   authEventName: 'auth',
-  // Client side event handlers
   events: {
     test: (data) => {
       ws
@@ -87,4 +82,12 @@ const ws = new WebSocketClient({
         .data({ checked: true });
 ```
 
+###### Client Options:
+  - **serverUrl**: Previously created WebSocket Server URL, f.e. 'ws://localhost:8088',
+  - **token**: Personal token for authentication
+  - **doReconnectOnClose**: Boolean identifier which indicate to do reconnects, recommended value is true,
+  - **reconnectInterval**: Interval between reconnect attempts in milliseconds,
+  - **authEventName**:  Authenticate event name the same as the server side,
+  - **events**: Client side event handlers
+  
 Thank You and Good Luck!

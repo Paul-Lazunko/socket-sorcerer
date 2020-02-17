@@ -1,4 +1,6 @@
 import {
+  ANY_EVENT_EXCEPTIONS,
+  ANY_EVENT_MARKER,
   PING_EVENT_NAME,
   PONG_EVENT_NAME
 } from '../constant';
@@ -25,8 +27,17 @@ export class WebSocketClient {
     this.authEventName = options.authEventName;
     this.eventEmitter = new EventEmitter();
     this.framesQueue = [];
+    const isSetAnyEventHandler: boolean =  !! options.events[ANY_EVENT_MARKER];
+    if (  this.authEventName ) {
+      ANY_EVENT_EXCEPTIONS.push(this.authEventName);
+    }
     for ( const event in options.events ) {
-      this.eventEmitter.on(event, options.events[event])
+      if ( event !== ANY_EVENT_MARKER ) {
+        if ( isSetAnyEventHandler && ! ANY_EVENT_EXCEPTIONS.includes(event) ) {
+          this.eventEmitter.on(event, options.events[ANY_EVENT_MARKER]);
+        }
+        this.eventEmitter.on(event, options.events[event])
+      }
     }
     this.setSocket();
   }

@@ -51,9 +51,13 @@ manager.to('test').event('test').data({ testMode: true });
  - **pingInterval**: interval between to ping probes in milliseconds,
  - **pingTimeout**: value when connection will be closed after ping probe fails in milliseconds,
  - **authenticate.eventName**: Your custom authenticate event name, should be implemented on client side too,
- - **authenticate.eventHandler**: Your custom authenticate event handler which should take provided from client side token and return user id
+ - **authenticate.eventHandler**: Your custom authenticate event handler which should take provided from client side 
+ token and return user id
  - **authenticate.authTimeout**: value when connection will be closed after auth probe fails in milliseconds
- - **events**: Server side event handlers, all of them besides 'connect' and 'disconnect' take two args (data and uid)
+ - **events**: Server side event handlers, all of them besides 'connect' and 'disconnect' take two args 
+ (data and uid, "connect" and "disconnect" events take one arg - uid). 
+ You can use '*' to define middleware which will be called previously 
+ (except "connect", "disconnect" and service events)
 
 ###### Build client at the front end side:
 ```ecmascript 6

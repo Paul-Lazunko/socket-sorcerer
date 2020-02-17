@@ -2,8 +2,16 @@ import { EventEmitter } from 'events';
 import { Server } from 'ws';
 import {IMessageParams, IServerOptions} from '../interface';
 import { uidHelper } from '../helper';
-import { PING_EVENT_NAME, PONG_EVENT_NAME } from '../constant';
-import {SocketManager} from "./SocketManager";
+import {
+  CONNECT_EVENT_NAME,
+  DISCONNECT_EVENT_NAME,
+  PING_EVENT_NAME,
+  PONG_EVENT_NAME,
+  ANY_EVENT_MARKER,
+  ANY_EVENT_EXCEPTIONS
+} from '../constant';
+
+import { SocketManager } from './SocketManager';
 
 export class WebsocketServer {
   private server: Server;
@@ -37,8 +45,17 @@ export class WebsocketServer {
       sockets: this.sockets
     });
     this.eventEmitter = new EventEmitter();
-    for ( const event in options.events) {
-      this.eventEmitter.on(event, options.events[event].bind(this.manager));
+    const isSetAnyEventHandler: boolean =  !! options.events[ANY_EVENT_MARKER];
+    if (  this.authEventName ) {
+      ANY_EVENT_EXCEPTIONS.push(this.authEventName);
+    }
+    for ( const event in options.events ) {
+      if ( event !== ANY_EVENT_MARKER ) {
+        if ( isSetAnyEventHandler && ! ANY_EVENT_EXCEPTIONS.includes(event) ) {
+          this.eventEmitter.on(event, options.events[ANY_EVENT_MARKER].bind(this.manager));
+        }
+        this.eventEmitter.on(event, options.events[event].bind(this.manager));
+      }
     }
     this.server = new Server(options.serverOptions);
     this.server.on('connection', this.onConnection.bind(this));
@@ -72,7 +89,7 @@ export class WebsocketServer {
           }
         }
       });
-      this.eventEmitter.emit('disconnect', uid)
+      this.eventEmitter.emit(DISCONNECT_EVENT_NAME, uid)
     }
   }
 
@@ -123,7 +140,7 @@ export class WebsocketServer {
                 }
               }
               this.manager.join(uid, uid);
-              this.eventEmitter.emit('connect', uid);
+              this.eventEmitter.emit(CONNECT_EVENT_NAME, uid);
             } catch ( error ) {
               socket.close();
             }

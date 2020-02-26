@@ -16,7 +16,7 @@ export class SocketManager {
     const room: string[] = this.getRoom(roomName);
     if ( ! room ) {
       this.rooms.set(roomName,[userId]);
-    } else {
+    } else if ( !room.includes(userId) ) {
       room.push(userId);
     }
   }
@@ -24,7 +24,9 @@ export class SocketManager {
   public leave(roomName: string, userId: string): void {
     const room: string[] = this.getRoom(roomName);
     if ( room ) {
-      room.splice(room.indexOf(userId), 1);
+      if ( !room.includes(userId) ) {
+        room.splice(room.indexOf(userId), 1);
+      }
       if ( ! room.length ) {
         this.rooms.delete(roomName);
       }
@@ -33,7 +35,7 @@ export class SocketManager {
 
   private sendTo(roomName: string, eventName: string, data: any): void {
     const room: string[] = this.getRoom(roomName);
-    if ( room ) {
+    if ( room && room.length ) {
       const sockets: string[] = [];
       room.forEach((userId: string) => {
         const socketIds: string[] = this.users.get(userId);

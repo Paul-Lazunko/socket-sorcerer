@@ -43,6 +43,9 @@ export class WebSocketClient {
   }
 
   setSocket() {
+    if ( this.socket ) {
+      this.socket.close();
+    }
     this.socket = new window.WebSocket(this.serverUrl);
     this.socket.onopen = this.onOpen.bind(this);
     this.socket.onclose= this.onClose.bind(this);

@@ -46,27 +46,29 @@ export class WebSocketClient {
     if ( this.socket ) {
       this.socket.close();
     }
-    this.socket = new window.WebSocket(this.serverUrl);
-    this.socket.onopen = this.onOpen.bind(this);
-    this.socket.onclose= this.onClose.bind(this);
-    this.socket.onerror = this.onError.bind(this);
-    this.socket.onmessage = (messageEvent: any) => {
-      try {
-        const params = JSON.parse(messageEvent.data);
-        const { event, data } = params;
-        switch (event) {
-          case PING_EVENT_NAME:
-            this.emit('', PONG_EVENT_NAME,{},  true);
-            break;
-          case this.authEventName:
-            this.emit('', this.authEventName, { token: this.token }, true);
-            break;
-          default:
-            this.eventEmitter.emit(event, data);
-            break;
+    if ( window && window.WebSocket ) {
+      this.socket = new window.WebSocket(this.serverUrl);
+      this.socket.onopen = this.onOpen.bind(this);
+      this.socket.onclose= this.onClose.bind(this);
+      this.socket.onerror = this.onError.bind(this);
+      this.socket.onmessage = (messageEvent: any) => {
+        try {
+          const params = JSON.parse(messageEvent.data);
+          const { event, data } = params;
+          switch (event) {
+            case PING_EVENT_NAME:
+              this.emit('', PONG_EVENT_NAME,{},  true);
+              break;
+            case this.authEventName:
+              this.emit('', this.authEventName, { token: this.token }, true);
+              break;
+            default:
+              this.eventEmitter.emit(event, data);
+              break;
+          }
+        } catch(e) {
+          console.log({e})
         }
-      } catch(e) {
-        console.log({e})
       }
     }
   }

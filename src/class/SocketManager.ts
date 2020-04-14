@@ -45,7 +45,9 @@ export class SocketManager {
       });
       data.room = roomName;
       sockets.forEach((socketId: string) => {
-        this.sockets.get(socketId).send(JSON.stringify({ data, event: eventName }));
+        if ( this.sockets.has(socketId) ) {
+          this.sockets.get(socketId).send(JSON.stringify({ data, event: eventName }));
+        }
       })
     }
   }

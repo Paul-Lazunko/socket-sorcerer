@@ -2,7 +2,7 @@ import { ISocketManagerOptions } from '../interface';
 import { checkCompletion } from '../helper';
 
 export class SocketManager {
-  private rooms: Map<string, string[]>;
+  public rooms: Map<string, string[]>;
   private users: Map<string, string[]>;
   private sockets: Map<string, any>;
 

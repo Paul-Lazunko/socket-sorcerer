@@ -18,10 +18,12 @@ export class WebSocketClient {
   private readonly authEventName: string;
   private isConnected: boolean;
   private framesQueue: string[];
+  private isActive: boolean;
 
   constructor(options: IClientOptions) {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
+    this.isActive = true;
     this.doReconnectOnClose = options.doReconnectOnClose;
     this.reconnectInterval = options.reconnectInterval;
     this.authEventName = options.authEventName;
@@ -42,12 +44,14 @@ export class WebSocketClient {
     this.setSocket();
   }
 
-  stopReconnect() {
+  deactivate() {
     this.doReconnectOnClose = false;
+    this.isActive = false;
   }
 
-  startReconnect() {
+  activate() {
     this.doReconnectOnClose = true;
+    this.isActive = true;
   }
 
   setToken(token: string) {
@@ -86,9 +90,7 @@ export class WebSocketClient {
 
   private onClose() {
    this.isConnected = false;
-   if ( this.doReconnectOnClose ) {
-     this.doReconnect();
-   }
+   this.doReconnect();
   }
 
   private onError(error: any) {
@@ -116,15 +118,17 @@ export class WebSocketClient {
   };
 
   private emit ( room: string = '', event: string, data: any, highPriority: boolean = false) {
-    const params = {
-      room,
-      event,
-      data
-    };
-    if ( this.isConnected ) {
-      this.socket.send(JSON.stringify(params));
-    } else {
-      highPriority ? this.framesQueue.unshift(JSON.stringify(params)) : this.framesQueue.push(JSON.stringify(params))
+    if ( this.isActive ) {
+      const params = {
+        room,
+        event,
+        data
+      };
+      if ( this.isConnected ) {
+        this.socket.send(JSON.stringify(params));
+      } else {
+        highPriority ? this.framesQueue.unshift(JSON.stringify(params)) : this.framesQueue.push(JSON.stringify(params))
+      }
     }
   }
 

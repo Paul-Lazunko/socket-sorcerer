@@ -1,6 +1,6 @@
 {
   "name": "socket-sorcerer",
-  "version": "2.0.15",
+  "version": "2.0.19",
   "description": "Websocket framework",
   "author": "Paul Lazunko <plavel@gmail.com>",
   "keywords": [

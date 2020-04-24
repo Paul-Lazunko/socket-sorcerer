@@ -85,8 +85,10 @@ export class WebSocketClient {
   }
 
   private onClose() {
-    this.isConnected = false;
-    this.doReconnect();
+   this.isConnected = false;
+   if ( this.doReconnectOnClose ) {
+     this.doReconnect();
+   }
   }
 
   private onError(error: any) {

@@ -12,7 +12,7 @@ export class WebSocketClient {
   private socket: WebSocket;
   private eventEmitter: EventEmitter;
   private readonly serverUrl: string;
-  private readonly token: string;
+  private token: string;
   private doReconnectOnClose: boolean;
   private readonly reconnectInterval: number;
   private readonly authEventName: string;
@@ -48,6 +48,10 @@ export class WebSocketClient {
 
   startReconnect() {
     this.doReconnectOnClose = true;
+  }
+
+  setToken(token: string) {
+    this.token = token;
   }
 
   setSocket() {

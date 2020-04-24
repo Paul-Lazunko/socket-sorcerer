@@ -47,6 +47,7 @@ export class WebSocketClient {
   deactivate() {
     this.doReconnectOnClose = false;
     this.isActive = false;
+    this.socket.close();
   }
 
   activate() {

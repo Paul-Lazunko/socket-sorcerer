@@ -142,6 +142,7 @@ export class WebsocketServer {
               this.manager.join(uid, uid);
               this.eventEmitter.emit(CONNECT_EVENT_NAME, uid);
             } catch ( error ) {
+              console.log({ error })
               socket.close();
             }
             break;

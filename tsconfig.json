@@ -3,6 +3,7 @@
     "lib": [
       "es2015",
       "es2017",
+      "esnext.asynciterable",
       "dom"
     ],
     "module": "commonjs",

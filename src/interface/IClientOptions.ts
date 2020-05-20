@@ -7,5 +7,9 @@ export interface IClientOptions {
   doReconnectOnClose: boolean
   reconnectInterval: number
   authEventName: string
-  events: IDictionary<TEventHandler>
+  events: IDictionary<TEventHandler>,
+  hooks?: {
+    onOpen?:  () => void,
+    onClose?: () => void
+  }
 }

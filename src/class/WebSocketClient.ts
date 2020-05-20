@@ -16,9 +16,11 @@ export class WebSocketClient {
   private doReconnectOnClose: boolean;
   private readonly reconnectInterval: number;
   private readonly authEventName: string;
-  private isConnected: boolean;
+  public isConnected: boolean;
   private framesQueue: string[];
   private isActive: boolean;
+  private onOpenHandler: any;
+  private onCloseHandler: any;
 
   constructor(options: IClientOptions) {
     this.serverUrl = options.serverUrl;
@@ -29,6 +31,14 @@ export class WebSocketClient {
     this.authEventName = options.authEventName;
     this.eventEmitter = new EventEmitter();
     this.framesQueue = [];
+    if ( options.hooks ) {
+      if (options.hooks.onOpen) {
+        this.onOpenHandler = options.hooks.onOpen;
+      }
+      if (options.hooks.onClose) {
+        this.onCloseHandler = options.hooks.onClose;
+      }
+    }
     const isSetAnyEventHandler: boolean =  !! options.events[ANY_EVENT_MARKER];
     if (  this.authEventName ) {
       ANY_EVENT_EXCEPTIONS.push(this.authEventName);
@@ -91,6 +101,9 @@ export class WebSocketClient {
 
   private onClose() {
    this.isConnected = false;
+    if ( typeof this.onCloseHandler === 'function') {
+      this.onCloseHandler()
+    }
    this.doReconnect();
   }
 
@@ -115,6 +128,9 @@ export class WebSocketClient {
       } else {
         break;
       }
+    }
+    if ( typeof this.onOpenHandler === 'function') {
+      this.onOpenHandler()
     }
   };
 

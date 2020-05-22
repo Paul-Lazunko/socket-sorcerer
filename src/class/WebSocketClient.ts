@@ -63,7 +63,7 @@ export class WebSocketClient {
   activate() {
     this.doReconnectOnClose = true;
     this.isActive = true;
-    this.setSocket();
+    this.doReconnect()
   }
 
   setToken(token: string) {

@@ -1,6 +1,6 @@
 {
   "name": "socket-sorcerer",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Node.js Websocket Framework",
   "author": "Paul Lazunko <plavel@gmail.com>",
   "keywords": [
@@ -23,7 +23,7 @@
   "devDependencies": {
     "@types/hapi__joi": "16.0.8",
     "@types/node": "^9.4.6",
-    "@types/ws": "^6.0.3",
+    "@types/ws": "^6.0.4",
     "esm": "^3.2.25",
     "husky": "3.0.0",
     "ts-node": "^5.0.0",

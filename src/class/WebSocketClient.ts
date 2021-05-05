@@ -9,7 +9,7 @@ import { EventEmitter } from './EventEmitter';
 import { checkCompletion } from '../helper';
 
 export class WebSocketClient {
-  private socket: WebSocket;
+  private socket: any;
   private eventEmitter: EventEmitter;
   private readonly serverUrl: string;
   private token: string;

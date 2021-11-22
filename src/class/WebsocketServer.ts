@@ -19,6 +19,7 @@ export class WebsocketServer {
   private pingTimers: Map<string, NodeJS.Timer>;
   private authTimers: Map<string, NodeJS.Timer>;
   private sockets: Map<string,any>;
+  private socketsByTokens: Map<string,string>;
   private users: Map<string,string[]>;
   private rooms: Map<string,string[]>;
   private manager: SocketManager;
@@ -37,12 +38,14 @@ export class WebsocketServer {
     this.authEventHandler = options.authenticate.eventHandler;
     this.authTimeout = options.authenticate.authTimeout;
     this.sockets = new Map<string, any>();
+    this.socketsByTokens = new Map<string, string>();
     this.users = new Map<string, string[]>();
     this.rooms = new Map<string, string[]>();
     this.manager = new SocketManager({
       rooms: this.rooms,
       users: this.users,
-      sockets: this.sockets
+      sockets: this.sockets,
+      socketsByToken: this.socketsByTokens
     });
     this.eventEmitter = new EventEmitter();
     const isSetAnyEventHandler: boolean =  !! options.events[ANY_EVENT_MARKER];
@@ -70,6 +73,11 @@ export class WebsocketServer {
   }
 
   private close(id: string, uid: string) {
+    this.socketsByTokens.forEach((socketId: string, token: string) => {
+      if (socketId === id) {
+        this.socketsByTokens.delete(token);
+      }
+    });
     this.sockets.delete(id);
     clearTimeout(this.pingTimers.get(id));
     this.pingTimers.delete(id);
@@ -140,6 +148,7 @@ export class WebsocketServer {
                 }
               }
               this.manager.join(uid, uid);
+              this.socketsByTokens.set(params.data.token, uid)
               this.eventEmitter.emit(CONNECT_EVENT_NAME, uid);
             } catch ( error ) {
               socket.close();

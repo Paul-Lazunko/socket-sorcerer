@@ -5,11 +5,13 @@ export class SocketManager {
   public rooms: Map<string, string[]>;
   private users: Map<string, string[]>;
   private sockets: Map<string, any>;
+  private socketsByToken: Map<string, string>;
 
   constructor(options: ISocketManagerOptions){
     this.rooms = options.rooms;
     this.users = options.users;
     this.sockets = options.sockets;
+    this.socketsByToken = options.socketsByToken;
   }
 
   public join(roomName: string, userId: string): void {
@@ -29,6 +31,16 @@ export class SocketManager {
       }
       if ( ! room.length ) {
         this.rooms.delete(roomName);
+      }
+    }
+  }
+
+  public closeByToken(token: string) {
+    const socketId = this.socketsByToken.get(token);
+    if ( socketId ) {
+      const socket = this.sockets.get(socketId);
+      if ( socket ) {
+        socket.close();
       }
     }
   }

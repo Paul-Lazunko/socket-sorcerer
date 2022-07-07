@@ -72,10 +72,10 @@ export class WebsocketServer {
     socket.send(JSON.stringify(params))
   }
 
-  private close(id: string, uid: string) {
-    this.socketsByTokens.forEach((socketId: string, token: string) => {
-      if (socketId === id) {
-        this.socketsByTokens.delete(token);
+  private close(id: string, uid: string, token: string) {
+    this.socketsByTokens.forEach((socketId: string, t: string) => {
+      if (t === token) {
+        this.socketsByTokens.delete(t);
       }
     });
     this.sockets.delete(id);
@@ -97,7 +97,7 @@ export class WebsocketServer {
           }
         }
       });
-      this.eventEmitter.emit(DISCONNECT_EVENT_NAME, uid)
+      this.eventEmitter.emit(DISCONNECT_EVENT_NAME, uid, token)
     }
   }
 
@@ -112,9 +112,10 @@ export class WebsocketServer {
     this.sockets.set(id, socket);
 
     this.pingTimers.set(id, setTimeout(() => {}, 0));
+    let token: string;
 
     socket.on('close', () => {
-      self.close(id, uid);
+      self.close(id, uid, token);
     });
 
     socket.on('message', async (data: string) => {
@@ -148,8 +149,9 @@ export class WebsocketServer {
                 }
               }
               this.manager.join(uid, uid);
-              this.socketsByTokens.set(params.data.token, uid)
-              this.eventEmitter.emit(CONNECT_EVENT_NAME, uid);
+              this.socketsByTokens.set(params.data.token, uid);
+              token = params.data.token;
+              this.eventEmitter.emit(CONNECT_EVENT_NAME, uid, params.data.token);
             } catch ( error ) {
               socket.close();
             }

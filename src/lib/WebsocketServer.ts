@@ -1,7 +1,8 @@
 import { EventEmitter } from 'events';
 import { Server } from 'ws';
-import {IMessageParams, IServerOptions} from '../interface';
-import { uidHelper } from '../helper';
+import { IServerOptions } from '../options';
+import { IMessageParams } from '../params';
+import { uidHelper } from '../helpers';
 import {
   CONNECT_EVENT_NAME,
   DISCONNECT_EVENT_NAME,
@@ -121,9 +122,10 @@ export class WebsocketServer {
     socket.on('message', async (data: string) => {
       try {
         const params: IMessageParams = JSON.parse(data);
+        let timeout: NodeJS.Timer;
         switch (params.event) {
           case PONG_EVENT_NAME:
-            let timeout: NodeJS.Timer = self.pingTimers.get(id);
+            timeout = self.pingTimers.get(id);
             if ( timeout ) {
               clearTimeout(timeout);
             }

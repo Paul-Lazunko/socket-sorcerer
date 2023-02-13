@@ -1,6 +1,6 @@
 {
   "name": "socket-sorcerer",
-  "version": "2.1.6",
+  "version": "3.0.0",
   "description": "Node.js Websocket Framework",
   "author": "Paul Lazunko <plavel@gmail.com>",
   "keywords": [
@@ -17,10 +17,12 @@
     "eslint": "eslint src/**/*.ts{,x}"
   },
   "dependencies": {
+    "microtime": "^3.1.1",
     "websocket": "^1.0.34",
     "ws": "^7.2.0"
   },
   "devDependencies": {
+    "@types/microtime": "^2.1.0",
     "@types/node": "^15.14.1",
     "@types/ws": "^7.4.7",
     "@types/prettier": "2.7.2",
@@ -42,5 +44,5 @@
   },
   "homepage": "https://github.com/Paul-Lazunko/socket-sorcerer#readme",
   "main": "dist/index.js",
-  "types": "src/index.d.ts"
+  "types": "src/types.d.ts"
 }

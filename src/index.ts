@@ -1,3 +1,3 @@
-export { WebsocketServer, WebSocketClient, SocketManager } from './class'
-export { IServerOptions, IClientOptions } from './interface'
-export { CryptoHelper } from './helper'
+export { WebsocketServer, WebSocketClient, WebSocketNodeJSClient, SocketManager } from './lib'
+export { IServerOptions, IClientOptions } from './options'
+export { CryptoHelper } from './helpers'

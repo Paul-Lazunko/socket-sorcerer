@@ -8,21 +8,21 @@ import { IClientOptions } from '../options';
 import { EventEmitter } from './EventEmitter';
 import { checkCompletion } from '../helpers';
 
-export class WebSocketClient {
-  private socket: any;
-  private eventEmitter: EventEmitter;
-  private readonly serverUrl: string;
-  private token: string;
-  private doReconnectOnClose: boolean;
-  private readonly reconnectInterval: number;
-  private readonly authEventName: string;
+export abstract class AbstractWebSocketClient {
+  protected socket: any;
+  protected eventEmitter: EventEmitter;
+  protected readonly serverUrl: string;
+  protected token: string;
+  protected doReconnectOnClose: boolean;
+  protected readonly reconnectInterval: number;
+  protected readonly authEventName: string;
   public isConnected: boolean;
-  private framesQueue: string[];
-  private isActive: boolean;
-  private onOpenHandler: any;
-  private onCloseHandler: any;
+  protected framesQueue: string[];
+  protected isActive: boolean;
+  protected onOpenHandler: any;
+  protected onCloseHandler: any;
 
-  constructor(options: IClientOptions) {
+  protected constructor(options: IClientOptions) {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
     this.isActive = true;
@@ -54,6 +54,8 @@ export class WebSocketClient {
     this.setSocket();
   }
 
+  abstract setSocket(): void
+
   deactivate() {
     this.doReconnectOnClose = false;
     this.isActive = false;
@@ -63,44 +65,14 @@ export class WebSocketClient {
   activate() {
     this.doReconnectOnClose = true;
     this.isActive = true;
-    this.doReconnect()
+    this.setSocket()
   }
 
   setToken(token: string) {
     this.token = token;
   }
 
-  setSocket() {
-    if ( this.socket ) {
-      this.socket.close();
-    }
-    // @ts-ignore
-    this.socket = new window['WebSocket'](this.serverUrl);
-    this.socket.onopen = this.onOpen.bind(this);
-    this.socket.onclose= this.onClose.bind(this);
-    this.socket.onerror = this.onError.bind(this);
-    this.socket.onmessage = (messageEvent: any) => {
-      try {
-        const params = JSON.parse(messageEvent.data);
-        const { event, data } = params;
-        switch (event) {
-          case PING_EVENT_NAME:
-            this.emit('', PONG_EVENT_NAME,{},  true);
-            break;
-          case this.authEventName:
-            this.emit('', this.authEventName, { token: this.token }, true);
-            break;
-          default:
-            this.eventEmitter.emit(event, data);
-            break;
-        }
-      } catch(e) {
-        console.log({e})
-      }
-    }
-  }
-
-  private onClose() {
+  protected onClose() {
    this.isConnected = false;
     if ( typeof this.onCloseHandler === 'function') {
       this.onCloseHandler()
@@ -108,11 +80,11 @@ export class WebSocketClient {
    this.doReconnect();
   }
 
-  private onError(error: any) {
+  protected onError(error: any) {
     console.error(error)
   }
 
-  private doReconnect() {
+  protected doReconnect() {
     if( this.doReconnectOnClose ) {
       setTimeout(() => {
         this.setSocket();
@@ -120,7 +92,8 @@ export class WebSocketClient {
     }
   }
 
-  private onOpen =  (connection: any) => {
+  protected onOpen =  (connection: any) => {
+    console.log({connection})
     this.isConnected = true;
     while ( this.framesQueue.length ) {
       if ( this.isConnected) {
@@ -135,7 +108,7 @@ export class WebSocketClient {
     }
   };
 
-  private emit ( room: string = '', event: string, data: any, highPriority: boolean = false) {
+  protected emit ( room: string = '', event: string, data: any, highPriority: boolean = false) {
     if ( this.isActive ) {
       const params = {
         room,

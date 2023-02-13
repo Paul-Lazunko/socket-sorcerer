@@ -13,7 +13,7 @@ export class EventEmitter {
   }
 
   public emit(event: string, ...data: any[]) {
-    if ( this.handlers.hasOwnProperty(event) && typeof this.handlers[event] === 'function') {
+    if ( Object.prototype.hasOwnProperty.apply(this.handlers, [event]) && typeof this.handlers[event] === 'function') {
       this.handlers[event](...data, event);
     }
   }

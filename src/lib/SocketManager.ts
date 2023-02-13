@@ -1,5 +1,5 @@
-import { ISocketManagerOptions } from '../interface';
-import { checkCompletion } from '../helper';
+import { ISocketManagerOptions } from '../options';
+import { checkCompletion } from '../helpers';
 
 export class SocketManager {
   public rooms: Map<string, string[]>;

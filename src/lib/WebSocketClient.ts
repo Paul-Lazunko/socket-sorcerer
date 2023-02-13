@@ -3,7 +3,7 @@ import {
   ANY_EVENT_MARKER,
   PING_EVENT_NAME,
   PONG_EVENT_NAME
-} from '../constant';
+} from '../constants';
 import { IClientOptions } from '../interface';
 import { EventEmitter } from './EventEmitter';
 import { checkCompletion } from '../helper';

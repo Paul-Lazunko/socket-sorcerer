@@ -26,7 +26,7 @@ export class SocketManager {
   public leave(roomName: string, userId: string): void {
     const room: string[] = this.getRoom(roomName);
     if ( room ) {
-      if ( !room.includes(userId) ) {
+      if ( room.includes(userId) ) {
         room.splice(room.indexOf(userId), 1);
       }
       if ( ! room.length ) {

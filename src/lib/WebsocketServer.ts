@@ -9,7 +9,7 @@ import {
   PONG_EVENT_NAME,
   ANY_EVENT_MARKER,
   ANY_EVENT_EXCEPTIONS
-} from '../constant';
+} from '../constants';
 
 import { SocketManager } from './SocketManager';
 

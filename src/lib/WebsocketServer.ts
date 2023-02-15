@@ -151,7 +151,8 @@ export class WebsocketServer {
                 }
               }
               this.manager.join(uid, uid);
-              this.socketsByTokens.set(params.data.token, uid);
+              const tokenKey = typeof params.data.token === 'object' ? params.data.token.token : params.data.token;
+              this.socketsByTokens.set(tokenKey, uid);
               token = params.data.token;
               this.eventEmitter.emit(CONNECT_EVENT_NAME, uid, params.data.token);
             } catch ( error ) {

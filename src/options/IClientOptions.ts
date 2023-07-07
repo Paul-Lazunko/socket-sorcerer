@@ -1,6 +1,6 @@
 export interface IClientOptions {
   serverUrl: string
-  token: string
+  token: any
   doReconnectOnClose: boolean
   reconnectInterval: number
   authEventName: string

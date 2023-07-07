@@ -108,7 +108,7 @@ export class WebsocketServer {
 
     const id = uidHelper();
 
-    let uid: string | undefined = undefined;
+    let uid: string;
 
     this.sockets.set(id, socket);
 
@@ -140,9 +140,10 @@ export class WebsocketServer {
               if ( !uid ) {
                 throw new Error('Authentication failed');
               }
+              uid = uid.toString()
               clearTimeout(this.authTimers.get(id));
               this.authTimers.delete(id);
-              const userExists: boolean = !! self.users.get(uid);
+              const userExists: boolean = self.users.has(uid);
               if ( ! userExists ) {
                 self.users.set(uid, [id]);
               } else {

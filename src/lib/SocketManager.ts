@@ -18,9 +18,9 @@ export class SocketManager {
     const room: string[] = this.getRoom(roomName);
     if ( ! room ) {
       this.rooms.set(roomName,[userId]);
-    } else if ( !room.includes(userId) ) {
-      room.push(userId);
     }
+    // Non-unique array of ids allows proper usage of multiple connections for the same user
+    room.push(userId);
   }
 
   public leave(roomName: string, userId: string): void {
@@ -49,11 +49,16 @@ export class SocketManager {
     const room: string[] = this.getRoom(roomName);
     if ( room && room.length ) {
       const sockets: string[] = [];
+      // Due to changes at the line #22 - prevent sending the same multiple times
+      const processedUserIds: string[] = [];
       room.forEach((userId: string) => {
-        const socketIds: string[] = this.users.get(userId);
-        socketIds.forEach((socketId: string) => {
-          sockets.push(socketId);
-        })
+        if (!processedUserIds.includes(userId)) {
+          const socketIds: string[] = this.users.get(userId);
+          socketIds.forEach((socketId: string) => {
+            sockets.push(socketId);
+          });
+          processedUserIds.push(userId);
+        }
       });
       data.room = roomName;
       sockets.forEach((socketId: string) => {

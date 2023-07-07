@@ -18,9 +18,11 @@ export class SocketManager {
     const room: string[] = this.getRoom(roomName);
     if ( ! room ) {
       this.rooms.set(roomName,[userId]);
+    } else {
+      // Non-unique array of ids allows proper usage of multiple connections for the same user
+      room.push(userId);
     }
-    // Non-unique array of ids allows proper usage of multiple connections for the same user
-    room.push(userId);
+
   }
 
   public leave(roomName: string, userId: string): void {

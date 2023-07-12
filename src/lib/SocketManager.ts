@@ -50,19 +50,16 @@ export class SocketManager {
   private sendTo(roomName: string, eventName: string, data: any): void {
     const room: string[] = this.getRoom(roomName);
     if ( room && room.length ) {
-      const sockets: string[] = [];
+      let sockets: string[] = [];
       // Due to changes at the line #22 - prevent sending the same multiple times
-      const processedUserIds: string[] = [];
       room.forEach((userId: string) => {
-        if (!processedUserIds.includes(userId)) {
-          const socketIds: string[] = this.users.get(userId);
-          socketIds.forEach((socketId: string) => {
-            sockets.push(socketId);
-          });
-          processedUserIds.push(userId);
-        }
+        const socketIds: string[] = this.users.get(userId);
+        socketIds.forEach((socketId: string) => {
+          sockets.push(socketId);
+        });
       });
       data.room = roomName;
+      sockets = Array.from(new Set(sockets));
       sockets.forEach((socketId: string) => {
         if ( this.sockets.has(socketId) ) {
           this.sockets.get(socketId).send(JSON.stringify({ data, event: eventName }));

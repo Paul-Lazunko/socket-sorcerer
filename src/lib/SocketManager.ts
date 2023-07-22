@@ -53,10 +53,12 @@ export class SocketManager {
       let sockets: string[] = [];
       // Due to changes at the line #22 - prevent sending the same multiple times
       room.forEach((userId: string) => {
-        const socketIds: string[] = this.users.get(userId);
-        socketIds.forEach((socketId: string) => {
-          sockets.push(socketId);
-        });
+        if (this.users.has(userId)) {
+          const socketIds: string[] = this.users.get(userId);
+          socketIds.forEach((socketId: string) => {
+            sockets.push(socketId);
+          });
+        }
       });
       data.room = roomName;
       sockets = Array.from(new Set(sockets));

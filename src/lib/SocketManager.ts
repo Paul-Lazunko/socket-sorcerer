@@ -20,7 +20,9 @@ export class SocketManager {
       this.rooms.set(roomName,[userId]);
     } else {
       // Non-unique array of ids allows proper usage of multiple connections for the same user
-      room.push(userId);
+      if (!room.includes(userId)) {
+        room.push(userId);
+      }
     }
 
   }

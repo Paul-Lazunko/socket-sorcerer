@@ -84,10 +84,10 @@ export class WebsocketServer {
     this.pingTimers.delete(id);
     clearTimeout(this.authTimers.get(id));
     this.authTimers.delete(id);
-    const user: string[] = this.users.get(uid);
-    if ( user ) {
-      user.splice(user.indexOf(uid),1);
-      if ( !user.length ) {
+    const userSockets: string[] = this.users.get(uid);
+    if ( Array.isArray(userSockets) ) {
+      userSockets.splice(userSockets.indexOf(id),1);
+      if ( !userSockets.length ) {
         this.users.delete(uid);
       }
       this.rooms.forEach((room: string[], roomName: string) => {

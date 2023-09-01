@@ -1,6 +1,6 @@
 {
   "name": "socket-sorcerer",
-  "version": "3.3.5",
+  "version": "4.0.0",
   "description": "Node.js Websocket Framework",
   "author": "Paul Lazunko <plavel@gmail.com>",
   "keywords": [
@@ -17,16 +17,18 @@
     "eslint": "eslint src/**/*.ts{,x}"
   },
   "dependencies": {
+    "@types/uuid": "^9.0.3",
+    "uuid": "^9.0.0",
     "websocket": "^1.0.34",
     "ws": "^7.2.0"
   },
   "devDependencies": {
     "@types/node": "^15.14.1",
     "@types/prettier": "2.7.2",
-    "@typescript-eslint/eslint-plugin": "^5.51.0",
-    "@typescript-eslint/parser": "^5.51.0",
     "@types/websocket": "^1.0.5",
     "@types/ws": "^7.4.7",
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
     "eslint": "^8.34.0",
     "husky": "3.0.0",
     "prettier": "^2.3.2",

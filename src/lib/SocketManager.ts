@@ -33,7 +33,7 @@ export class SocketManager {
       if ( room.includes(userId) ) {
         room.splice(room.indexOf(userId), 1);
       }
-      if ( ! room.length ) {
+      if ( !room.length ) {
         this.rooms.delete(roomName);
       }
     }

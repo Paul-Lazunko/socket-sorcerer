@@ -7,4 +7,5 @@ export interface IServerOptions {
   pingTimeout: number
   authenticate: ISocketAuthenticateOptions
   events: Record<string, (...args: any[]) => any | Promise<any>>,
+  pingDataGetter?: (...args: any[]) => Promise<any>
 }

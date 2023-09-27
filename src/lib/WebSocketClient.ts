@@ -86,6 +86,7 @@ export class WebSocketClient {
         switch (event) {
           case PING_EVENT_NAME:
             this.emit('', PONG_EVENT_NAME,{},  true);
+            this.eventEmitter.emit(event, data);
             break;
           case this.authEventName:
             this.emit('', this.authEventName, { token: this.token }, true);

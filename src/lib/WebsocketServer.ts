@@ -28,6 +28,7 @@ export class WebsocketServer {
   private readonly pingTimeout: number;
   private readonly authTimeout: number;
   private readonly authEventName: string;
+  private readonly pingDataGetter: (...args: any[]) => Promise<any>;
   private readonly authEventHandler: (value: string) => Promise<string>;
 
   constructor(options: IServerOptions) {
@@ -35,6 +36,7 @@ export class WebsocketServer {
     this.authTimers = new Map<string, NodeJS.Timer>();
     this.pingInterval = options.pingInterval;
     this.pingTimeout = options.pingTimeout;
+    this.pingDataGetter = options.pingDataGetter;
     this.authEventName = options.authenticate.eventName;
     this.authEventHandler = options.authenticate.eventHandler;
     this.authTimeout = options.authenticate.authTimeout;
@@ -179,7 +181,29 @@ export class WebsocketServer {
     this.pingTimers.set(id, setTimeout(() => {
       socket.close();
     }, this.pingTimeout));
-    this.emit(socket, PING_EVENT_NAME, {});
+    const pingDataDefault = {};
+    const uid = this.getUidById(id);
+    if (uid && typeof this.pingDataGetter === 'function') {
+       this.pingDataGetter(uid)
+         .then(pingData => {
+           this.emit(socket, PING_EVENT_NAME, pingData);
+         })
+         .catch(e => {
+           this.emit(socket, PING_EVENT_NAME, pingDataDefault);
+         })
+    } else {
+      this.emit(socket, PING_EVENT_NAME, pingDataDefault);
+    }
+  }
+
+  private getUidById(id: string) {
+    let uid: string;
+    this.users.forEach((sockets: string[], userId: string) => {
+      if (sockets.includes(id)) {
+        uid = userId;
+      }
+    });
+    return uid;
   }
 
   public getManager() {

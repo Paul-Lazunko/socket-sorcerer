@@ -49,6 +49,9 @@ export class SocketManager {
     }
   }
 
+  public roomExists(room: string): boolean {
+    return this.rooms.has(room);
+  }
   private sendTo(roomName: string, eventName: string, data: any): void {
     const room: string[] = this.getRoom(roomName);
     if ( room && room.length ) {

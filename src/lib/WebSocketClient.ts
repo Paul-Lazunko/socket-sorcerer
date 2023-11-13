@@ -85,11 +85,11 @@ export class WebSocketClient {
         const { event, data } = params;
         switch (event) {
           case PING_EVENT_NAME:
-            this.emit('', PONG_EVENT_NAME,{},  true);
+            this.emit(PONG_EVENT_NAME,{},  true);
             this.eventEmitter.emit(event, data);
             break;
           case this.authEventName:
-            this.emit('', this.authEventName, { token: this.token }, true);
+            this.emit(this.authEventName, { token: this.token }, true);
             break;
           default:
             this.eventEmitter.emit(event, data);
@@ -136,34 +136,33 @@ export class WebSocketClient {
     }
   };
 
-  private emit ( room: string = '', event: string, data: any, highPriority: boolean = false) {
+  public emit (event: string, data: any, highPriority: boolean = false) {
     if ( this.isActive ) {
-      const params = {
-        room,
+      const params = JSON.stringify({
         event,
         data
-      };
+      });
       if ( this.isConnected ) {
-        this.socket.send(JSON.stringify(params));
+        this.socket.send(params);
       } else {
-        highPriority ? this.framesQueue.unshift(JSON.stringify(params)) : this.framesQueue.push(JSON.stringify(params))
+        highPriority ? this.framesQueue.unshift(params) : this.framesQueue.push(params);
       }
     }
   }
 
-  public to (roomName: string) {
+  public to (room: string) {
     let eventName: string;
     let data: string;
-    const self = this;
+    const executor = this.emit.bind(this);
     return {
       event(name: string) {
         eventName = name;
-        const isComplete: boolean = checkCompletion(roomName, eventName, data, self.emit.bind(self));
+        const isComplete: boolean = checkCompletion(room, eventName, data, executor);
         return isComplete ? {} : this;
       },
       data(dataObj: any) {
         data = dataObj;
-        const isComplete: boolean = checkCompletion(roomName, eventName, data, self.emit.bind(self));
+        const isComplete: boolean = checkCompletion(room, eventName, data, executor);
         return isComplete ? {} : this;
       }
     }

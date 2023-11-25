@@ -9,7 +9,8 @@ import {
   PING_EVENT_NAME,
   PONG_EVENT_NAME,
   ANY_EVENT_MARKER,
-  ANY_EVENT_EXCEPTIONS
+  ANY_EVENT_EXCEPTIONS,
+  AFTER_CONNECT_EVENT_NAME
 } from '../constants';
 
 import { SocketManager } from './SocketManager';
@@ -141,6 +142,7 @@ export class WebsocketServer {
             timeout = setTimeout(() => {
               self.setSocketTimer(socket, id);
             }, self.pingInterval);
+            this.eventEmitter.emit(AFTER_CONNECT_EVENT_NAME, uid);
             break;
 
           case self.authEventName:
@@ -165,6 +167,7 @@ export class WebsocketServer {
               this.socketsByTokens.set(tokenKey, uid);
               token = params.data.token;
               this.eventEmitter.emit(CONNECT_EVENT_NAME, uid, params.data.token);
+              this.eventEmitter.emit(AFTER_CONNECT_EVENT_NAME, uid, params.data.token);
             } catch ( authError ) {
               console.log({ authError })
               socket.close();

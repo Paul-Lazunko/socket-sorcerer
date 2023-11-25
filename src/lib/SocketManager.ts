@@ -65,7 +65,7 @@ export class SocketManager {
           });
         }
       });
-      data.room = roomName;
+      // data.room = roomName;
       sockets = Array.from(new Set(sockets));
       sockets.forEach((socketId: string) => {
         if ( this.sockets.has(socketId) ) {

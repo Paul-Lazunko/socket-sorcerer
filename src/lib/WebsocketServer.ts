@@ -76,30 +76,36 @@ export class WebsocketServer {
   }
 
   private close(id: string, uid: string, token: string) {
-    this.socketsByTokens.forEach((socketId: string, t: string) => {
-      if (t === token) {
-        this.socketsByTokens.delete(t);
-      }
-    });
+    if (token) {
+      this.socketsByTokens.forEach((socketId: string, t: string) => {
+        if (t === token) {
+          this.socketsByTokens.delete(t);
+        }
+      });
+    }
     this.sockets.delete(id);
     clearTimeout(this.pingTimers.get(id));
     this.pingTimers.delete(id);
     clearTimeout(this.authTimers.get(id));
     this.authTimers.delete(id);
     const userSockets: string[] = this.users.get(uid);
+    let removeRoom: boolean = false;
     if ( Array.isArray(userSockets) ) {
       userSockets.splice(userSockets.indexOf(id),1);
       if ( !userSockets.length ) {
+        removeRoom = true;
         this.users.delete(uid);
       }
-      this.rooms.forEach((room: string[], roomName: string) => {
-        if ( room.includes(uid) ) {
-          room.splice(room.indexOf(uid),1);
-          if ( !room.length ) {
-            this.rooms.delete(roomName);
+      if (removeRoom) {
+        this.rooms.forEach((room: string[], roomName: string) => {
+          if ( room.includes(uid) ) {
+            room.splice(room.indexOf(uid),1);
+            if ( !room.length ) {
+              this.rooms.delete(roomName);
+            }
           }
-        }
-      });
+        });
+      }
       this.eventEmitter.emit(DISCONNECT_EVENT_NAME, uid, token)
     }
   }
@@ -115,7 +121,8 @@ export class WebsocketServer {
     this.sockets.set(id, socket);
 
     this.pingTimers.set(id, setTimeout(() => {}, 0));
-    let token: string;
+
+    let token: any;
 
     socket.on('close', () => {
       self.close(id, uid, token);
@@ -158,7 +165,8 @@ export class WebsocketServer {
               this.socketsByTokens.set(tokenKey, uid);
               token = params.data.token;
               this.eventEmitter.emit(CONNECT_EVENT_NAME, uid, params.data.token);
-            } catch ( error ) {
+            } catch ( authError ) {
+              console.log({ authError })
               socket.close();
             }
             break;

@@ -3,7 +3,9 @@ node_modules
 *.lock
 tsconfig.json
 .editorconfig
-tslint.json
+.eslint.js
+.prettierrc
 .gitignore
 .npmignore
 src/
+sandbox/

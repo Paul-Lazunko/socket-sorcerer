@@ -17,16 +17,37 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": [
-        "node_modules/*",
-        "src/*"
-      ]
+      "@client-constants": [
+        "src/client/constants"
+      ],
+      "@client-core": [
+        "src/client/core"
+      ],
+      "@client-options": [
+        "src/client/options"
+      ],
+      "@server-constants": [
+        "src/server/constants"
+      ],
+      "@server-core": [
+        "src/server/core"
+      ],
+      "@server-options": [
+        "src/server/options"
+      ],
+      "@server-helpers": [
+        "src/server/helpers"
+      ],
+      "@server-params": [
+        "src/server/params"
+      ],
     },
     "types": [
       "node"
     ]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "node_modules/@types/node/timers.d.ts"
   ]
 }

@@ -1,26 +1,19 @@
 # Editors:
 .idea
 *.iml
-
 # node_modules:
 node_modules
-
 # Optional npm cache directory
 .npm
-
 # logs:
 logs/*
 *.log
-
 # dist
 dist/*
-
-# test
-test/*
-
+# sandbox
+sandbox/*
 # env_file
 *.env
-
 
 # lock files
 *.lock

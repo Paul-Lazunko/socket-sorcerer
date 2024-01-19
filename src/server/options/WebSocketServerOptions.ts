@@ -1,11 +1,11 @@
 import { ServerOptions } from 'ws';
-import { ISocketAuthenticateOptions } from './ISocketAuthenticateOptions';
+import { SocketAuthenticateOptions } from './SocketAuthenticateOptions';
 
-export interface IServerOptions {
-  serverOptions: ServerOptions
+export interface WebSocketServerOptions {
+  serverOptions: WebSocketServerOptions
   pingInterval: number
   pingTimeout: number
-  authenticate: ISocketAuthenticateOptions
+  authenticate: SocketAuthenticateOptions
   events: Record<string, (...args: any[]) => any | Promise<any>>,
   pingDataGetter?: (...args: any[]) => Promise<any>
 }

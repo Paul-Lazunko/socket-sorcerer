@@ -3,26 +3,26 @@ import {
   ANY_EVENT_MARKER,
   PING_EVENT_NAME,
   PONG_EVENT_NAME
-} from '../constants';
-import { IClientOptions } from '../options';
-import { EventEmitter } from './EventEmitter';
-import { checkCompletion } from '../helpers';
+} from '../../constants';
+import { IClientOptions } from '../../options';
+import { EventEmitter } from './core/EventEmitter';
+import { checkCompletion } from '../../helpers';
 
-export abstract class AbstractWebSocketClient {
-  protected socket: any;
-  protected eventEmitter: EventEmitter;
-  protected readonly serverUrl: string;
-  protected token: string;
-  protected doReconnectOnClose: boolean;
-  protected readonly reconnectInterval: number;
-  protected readonly authEventName: string;
+export class WebSocketClient {
+  private socket: any;
+  private eventEmitter: EventEmitter;
+  private readonly serverUrl: string;
+  private token: string;
+  private doReconnectOnClose: boolean;
+  private readonly reconnectInterval: number;
+  private readonly authEventName: string;
   public isConnected: boolean;
-  protected framesQueue: string[];
-  protected isActive: boolean;
-  protected onOpenHandler: any;
-  protected onCloseHandler: any;
+  private framesQueue: string[];
+  private isActive: boolean;
+  private onOpenHandler: any;
+  private onCloseHandler: any;
 
-  protected constructor(options: IClientOptions) {
+  constructor(options: IClientOptions) {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
     this.isActive = true;
@@ -54,8 +54,6 @@ export abstract class AbstractWebSocketClient {
     this.setSocket();
   }
 
-  abstract setSocket(): void
-
   deactivate() {
     this.doReconnectOnClose = false;
     this.isActive = false;
@@ -65,14 +63,45 @@ export abstract class AbstractWebSocketClient {
   activate() {
     this.doReconnectOnClose = true;
     this.isActive = true;
-    this.setSocket()
+    this.doReconnect()
   }
 
   setToken(token: string) {
     this.token = token;
   }
 
-  protected onClose() {
+  setSocket() {
+    if ( this.socket ) {
+      this.socket.close();
+    }
+    // @ts-ignore
+    this.socket = new window['WebSocket'](this.serverUrl);
+    this.socket.onopen = this.onOpen.bind(this);
+    this.socket.onclose= this.onClose.bind(this);
+    this.socket.onerror = this.onError.bind(this);
+    this.socket.onmessage = (messageEvent: any) => {
+      try {
+        const params = JSON.parse(messageEvent.data);
+        const { event, data } = params;
+        switch (event) {
+          case PING_EVENT_NAME:
+            this.emit(PONG_EVENT_NAME,{},  true);
+            this.eventEmitter.emit(event, data);
+            break;
+          case this.authEventName:
+            this.emit(this.authEventName, { token: this.token }, true);
+            break;
+          default:
+            this.eventEmitter.emit(event, data);
+            break;
+        }
+      } catch(e) {
+        console.log({e})
+      }
+    }
+  }
+
+  private onClose() {
    this.isConnected = false;
     if ( typeof this.onCloseHandler === 'function') {
       this.onCloseHandler()
@@ -80,11 +109,11 @@ export abstract class AbstractWebSocketClient {
    this.doReconnect();
   }
 
-  protected onError(error: any) {
+  private onError(error: any) {
     console.error(error)
   }
 
-  protected doReconnect() {
+  private doReconnect() {
     if( this.doReconnectOnClose ) {
       setTimeout(() => {
         this.setSocket();
@@ -92,8 +121,7 @@ export abstract class AbstractWebSocketClient {
     }
   }
 
-  protected onOpen =  (connection: any) => {
-    console.log({connection})
+  private onOpen =  (connection: any) => {
     this.isConnected = true;
     while ( this.framesQueue.length ) {
       if ( this.isConnected) {
@@ -108,34 +136,33 @@ export abstract class AbstractWebSocketClient {
     }
   };
 
-  protected emit ( room: string = '', event: string, data: any, highPriority: boolean = false) {
+  public emit (event: string, data: any, highPriority: boolean = false) {
     if ( this.isActive ) {
-      const params = {
-        room,
+      const params = JSON.stringify({
         event,
         data
-      };
+      });
       if ( this.isConnected ) {
-        this.socket.send(JSON.stringify(params));
+        this.socket.send(params);
       } else {
-        highPriority ? this.framesQueue.unshift(JSON.stringify(params)) : this.framesQueue.push(JSON.stringify(params))
+        highPriority ? this.framesQueue.unshift(params) : this.framesQueue.push(params);
       }
     }
   }
 
-  public to (roomName: string) {
+  public to (room: string) {
     let eventName: string;
     let data: string;
-    const self = this;
+    const executor = this.emit.bind(this);
     return {
       event(name: string) {
         eventName = name;
-        const isComplete: boolean = checkCompletion(roomName, eventName, data, self.emit.bind(self));
+        const isComplete: boolean = checkCompletion(room, eventName, data, executor);
         return isComplete ? {} : this;
       },
       data(dataObj: any) {
         data = dataObj;
-        const isComplete: boolean = checkCompletion(roomName, eventName, data, self.emit.bind(self));
+        const isComplete: boolean = checkCompletion(room, eventName, data, executor);
         return isComplete ? {} : this;
       }
     }

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { Namespace } from '@server-core';
+import { Namespace } from '../core';
 
 export interface SocketManagerOptions {
   namespace: Namespace,

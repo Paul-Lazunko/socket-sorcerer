@@ -1,2 +1,2 @@
-export { WebsocketServer, WebSocketClient, SocketManager } from './lib'
-export { IServerOptions, IClientOptions } from './options'
+export * from './server'
+export * from './client'

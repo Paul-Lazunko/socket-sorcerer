@@ -1,11 +1,16 @@
 import { ServerOptions } from 'ws';
 import { SocketAuthenticateOptions } from './SocketAuthenticateOptions';
 
+interface Verbose {
+  enable: boolean,
+  interval: number
+}
+
 export interface WebSocketServerOptions {
-  serverOptions: WebSocketServerOptions
+  serverOptions: ServerOptions
   pingInterval: number
   pingTimeout: number
   authenticate: SocketAuthenticateOptions
   events: Record<string, (...args: any[]) => any | Promise<any>>,
-  pingDataGetter?: (...args: any[]) => Promise<any>
+  verbose?: Verbose
 }

@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
+import { IncomingMessage } from 'http'
 import { Server, WebSocket } from 'ws';
 import { v4 } from 'uuid';
 
-
-import { Namespace } from './core';
+import { Namespace } from '@server-core';
 import {
   CONNECT_EVENT_NAME,
   DISCONNECT_EVENT_NAME,
@@ -12,21 +12,19 @@ import {
   ANY_EVENT_MARKER,
   ANY_EVENT_EXCEPTIONS,
   AFTER_CONNECT_EVENT_NAME
-} from './constants';
-import { WebSocketServerOptions } from './options';
-import { MessagingParams } from './params';
-
+} from '@server-constants';
+import { WebSocketServerOptions } from '@server-options';
+import { MessagingParams } from '@server-params';
+import { pseudoInterval } from '@server-helpers';
 import { SocketManager } from './SocketManager';
 
 
-export class WebsocketServer {
+export class WebSocketServer {
   private server: Server;
-  private eventEmitter: EventEmitter;
+  private readonly eventEmitter: EventEmitter;
   private pingTimers: Map<string, any>;
   private authTimers: Map<string, any>;
-
-
-  private manager: SocketManager;
+  private readonly manager: SocketManager;
   private readonly pingInterval: number;
   private readonly pingTimeout: number;
   private readonly authTimeout: number;
@@ -44,6 +42,10 @@ export class WebsocketServer {
     this.authTimeout = options.authenticate.authTimeout;
     this.authEventName = options.authenticate.eventName;
     this.authEventHandler = options.authenticate.eventHandler;
+    this.manager = new SocketManager({
+      eventEmitter: this.eventEmitter,
+      namespace: new Namespace()
+    });
     const isSetAnyEventHandler: boolean = Boolean(options.events[ANY_EVENT_MARKER]);
     if ( this.authEventName ) {
       ANY_EVENT_EXCEPTIONS.push(this.authEventName);
@@ -56,12 +58,30 @@ export class WebsocketServer {
         this.eventEmitter.on(event, options.events[event].bind(this.manager));
       }
     }
-    this.manager = new SocketManager({
-      eventEmitter: this.eventEmitter,
-      namespace: new Namespace()
-    });
+
+    const { verbose } = options;
+    if (verbose?.enable) {
+      pseudoInterval({
+        handler: this.displayStats.bind(this),
+        isActive: true,
+        forceExit: false,
+        interval: verbose.interval
+      })
+    }
+
     this.server = new Server({ ...options.serverOptions, clientTracking: false });
     this.server.on('connection', this.onConnection.bind(this));
+  }
+
+  private displayStats() {
+    const { channels, users, connections} = this.manager.stats();
+    console.log({
+      channels,
+      groupChannels: channels - users - connections,
+      users,
+      activeConnections: this.pingTimers.size,
+      authorizedConnections: connections
+    })
   }
 
   private close(id: string, uid: string, token: string) {
@@ -73,13 +93,14 @@ export class WebsocketServer {
     // Leave all rooms and close socket
     this.manager.disconnect(id);
     // emit disconnect event
-    this.eventEmitter.emit(DISCONNECT_EVENT_NAME, uid, id, token)
+    this.eventEmitter.emit(DISCONNECT_EVENT_NAME, id, uid, token)
   }
 
-  private onConnection(webSocket: WebSocket) {
+  private onConnection(webSocket: WebSocket, req: IncomingMessage) {
     const id = v4();
     let uid: string;
     let token: any;
+    const ip = req.socket.remoteAddress;
 
     webSocket.on('close', () => {
       this.close(id, uid, token);
@@ -91,7 +112,7 @@ export class WebsocketServer {
         switch (params?.event) {
           case PONG_EVENT_NAME:
             this.setPingTimeout(webSocket, id);
-            this.eventEmitter.emit(AFTER_CONNECT_EVENT_NAME, uid, id, token);
+            this.eventEmitter.emit(AFTER_CONNECT_EVENT_NAME, id, uid, token);
             break;
           case this.authEventName:
             try {
@@ -104,14 +125,15 @@ export class WebsocketServer {
               uid = uid.toString()
               const tokenKey = typeof params.data.token === 'object' ? params.data.token.token : params.data.token;
               this.manager.connect(webSocket, tokenKey, uid, id, []);
-              this.eventEmitter.emit(CONNECT_EVENT_NAME, uid, id, params.data.token);
+              this.eventEmitter.emit(CONNECT_EVENT_NAME, id, uid, params.data.token, ip);
+              token = params.data.token
             } catch ( authError ) {
               console.log({ authError })
               webSocket.close();
             }
             break;
           default:
-            this.eventEmitter.emit(params.event, params.data, uid, id);
+            this.eventEmitter.emit(params.event, params.data, id, uid);
             break;
         }
       } catch( error ) {

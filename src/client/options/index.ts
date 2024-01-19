@@ -1,3 +1,3 @@
-export * from '../lib/server/options/WebSocketServerOptions';
-export * from '../lib/server/options/SocketManagerOptions';
-export * from './IClientOptions';
+export * from '../../server/options/WebSocketServerOptions';
+export * from '../../server/options/SocketManagerOptions';
+export * from './WebSocketClientOptions';

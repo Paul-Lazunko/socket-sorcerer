@@ -3,10 +3,9 @@ import {
   ANY_EVENT_MARKER,
   PING_EVENT_NAME,
   PONG_EVENT_NAME
-} from '../../constants';
-import { IClientOptions } from '../../options';
-import { EventEmitter } from './core/EventEmitter';
-import { checkCompletion } from '../../helpers';
+} from './constants';
+import { WebSocketClientOptions } from './options';
+import { EventEmitter } from './core';
 
 export class WebSocketClient {
   private socket: any;
@@ -22,7 +21,7 @@ export class WebSocketClient {
   private onOpenHandler: any;
   private onCloseHandler: any;
 
-  constructor(options: IClientOptions) {
+  constructor(options: WebSocketClientOptions) {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
     this.isActive = true;
@@ -76,10 +75,10 @@ export class WebSocketClient {
     }
     // @ts-ignore
     this.socket = new window['WebSocket'](this.serverUrl);
-    this.socket.onopen = this.onOpen.bind(this);
-    this.socket.onclose= this.onClose.bind(this);
-    this.socket.onerror = this.onError.bind(this);
-    this.socket.onmessage = (messageEvent: any) => {
+    this.socket.addEventListener('open', this.onOpen.bind(this));
+    this.socket.addEventListener('close', this.onClose.bind(this));
+    this.socket.addEventListener('error', this.onError.bind(this));
+    this.socket.addEventListener('message', (messageEvent: any) => {
       try {
         const params = JSON.parse(messageEvent.data);
         const { event, data } = params;
@@ -96,17 +95,18 @@ export class WebSocketClient {
             break;
         }
       } catch(e) {
-        console.log({e})
+        console.error({ e })
       }
-    }
+    });
+
   }
 
   private onClose() {
-   this.isConnected = false;
+    this.isConnected = false;
     if ( typeof this.onCloseHandler === 'function') {
       this.onCloseHandler()
     }
-   this.doReconnect();
+    this.doReconnect();
   }
 
   private onError(error: any) {
@@ -150,21 +150,4 @@ export class WebSocketClient {
     }
   }
 
-  public to (room: string) {
-    let eventName: string;
-    let data: string;
-    const executor = this.emit.bind(this);
-    return {
-      event(name: string) {
-        eventName = name;
-        const isComplete: boolean = checkCompletion(room, eventName, data, executor);
-        return isComplete ? {} : this;
-      },
-      data(dataObj: any) {
-        data = dataObj;
-        const isComplete: boolean = checkCompletion(room, eventName, data, executor);
-        return isComplete ? {} : this;
-      }
-    }
-  }
 }

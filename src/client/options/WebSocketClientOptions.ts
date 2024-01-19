@@ -1,4 +1,4 @@
-export interface IClientOptions {
+export interface WebSocketClientOptions {
   serverUrl: string
   token: any
   doReconnectOnClose: boolean

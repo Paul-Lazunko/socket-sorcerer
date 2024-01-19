@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
-import { SocketManagerOptions } from '@options';
-import { Namespace } from '@server-core';
-import { ChannelingParams, ConnectionJoinChannel, MessagingParams, UserJoinChannel } from '@server-params';
+import { SocketManagerOptions } from '../client/options';
+import { Namespace } from './core';
+import { ChannelingParams, ConnectionJoinChannel, MessagingParams, UserJoinChannel } from './params';
 import { WebSocket } from 'ws';
 
 export class SocketManager {
@@ -14,7 +14,7 @@ export class SocketManager {
   }
 
   connect(webSocket: WebSocket, token: string,  user: string, connection: string, channels: string[],) {
-
+    return this.namespace.connect(webSocket, user, connection, channels)
   }
 
   disconnect(connection: string) {
@@ -22,12 +22,12 @@ export class SocketManager {
   }
 
   public join(params: ChannelingParams): void {
-   const { channel, user, connection } = params;
+   const { channel } = params;
    if (channel) {
-     if (user) {
-       return this.namespace.userJoinChannel(user, channel);
-     } else if (connection) {
-       return this.namespace.connectionJoinChannel(connection, channel)
+     if ((params as UserJoinChannel).user) {
+       return this.namespace.userJoinChannel((params as UserJoinChannel).user, channel);
+     } else if ((params as ConnectionJoinChannel).connection) {
+       return this.namespace.connectionJoinChannel((params as ConnectionJoinChannel).connection, channel)
      }
    }
   }
@@ -49,6 +49,10 @@ export class SocketManager {
     if (targetChannel) {
       targetChannel.send(message);
     }
+  }
+
+  public stats() {
+    return this.namespace.stats();
   }
 
 

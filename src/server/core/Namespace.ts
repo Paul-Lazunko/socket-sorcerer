@@ -27,9 +27,12 @@ export class Namespace extends AbstractNamespace {
     }
   }
 
-  public connect(webSocket: WebSocket, uid: string, cid?: string, channels?: string[]) {
+  public connect(webSocket: WebSocket, uid: string, cid?: string, channels?: string[], token?: string) {
     const self = this;
     cid = cid || v4();
+    if (token) {
+      this.connectionsByToken.set(token, cid)
+    }
     channels = channels ? [...channels, uid, cid ] : [uid, cid];
     this.createUser(uid)
     const user = this.users.get(uid);
@@ -50,6 +53,12 @@ export class Namespace extends AbstractNamespace {
 
   public disconnect(cid: string) {
     this.deleteConnection(cid);
+  }
+  public disconnectByToken(token: string) {
+    if (this.connectionsByToken.has(token)) {
+      this.deleteConnection(this.connectionsByToken.get(token));
+
+    }
   }
 
 

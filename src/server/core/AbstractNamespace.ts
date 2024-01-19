@@ -8,13 +8,13 @@ export abstract class AbstractNamespace {
   protected channels: Map<string, AbstractChannel>;
   protected users: Map<string, AbstractUser>;
   protected connections: Map<string, AbstractConnection>;
-  protected connectionsByToken: Map<string, AbstractConnection>;
+  protected connectionsByToken: Map<string, string>;
 
   protected constructor() {
     this.channels = new Map<string, AbstractChannel>();
     this.users = new Map<string, AbstractUser>();
     this.connections = new Map<string, AbstractConnection>();
-    this.connectionsByToken = new Map<string, AbstractConnection>();
+    this.connectionsByToken = new Map<string, string>();
   }
 
   protected abstract createChannel(name: string): void;
@@ -101,6 +101,7 @@ export abstract class AbstractNamespace {
       }
       connection.destruct();
       this.connections.delete(cid);
+      this.connectionsByToken.delete(connection.connectionToken);
     }
   }
 

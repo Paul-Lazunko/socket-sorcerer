@@ -14,11 +14,15 @@ export class SocketManager {
   }
 
   connect(webSocket: WebSocket, token: string,  user: string, connection: string, channels: string[],) {
-    return this.namespace.connect(webSocket, user, connection, channels)
+    return this.namespace.connect(webSocket, user, connection, channels, token)
   }
 
   disconnect(connection: string) {
     return this.namespace.disconnect(connection);
+  }
+
+  closeByToken(token: string) {
+    return this.namespace.disconnectByToken(token);
   }
 
   public join(params: ChannelingParams): void {

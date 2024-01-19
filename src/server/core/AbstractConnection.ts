@@ -17,6 +17,10 @@ export abstract class AbstractConnection {
     return this.options.id;
   }
 
+  public get connectionToken() {
+    return this.options.connectionToken;
+  }
+
   public destruct() {
    try {
      this.options.webSocket.close();

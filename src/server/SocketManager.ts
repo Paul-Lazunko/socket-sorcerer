@@ -6,13 +6,9 @@ import { ChannelingParams, ConnectionJoinChannel, MessagingParams, UserJoinChann
 
 export class SocketManager {
   public namespace: Namespace;
-  public eventEmitter: EventEmitter;
-  public pingTimeout: number;
 
   constructor(options: SocketManagerOptions) {
     this.namespace = options.namespace;
-    this.eventEmitter = options.eventEmitter;
-    this.pingTimeout = options.pingTimeout;
   }
 
   connect(webSocket: WebSocket, token: string,  user: string, connection: string, channels: string[],) {
@@ -20,9 +16,7 @@ export class SocketManager {
   }
 
   disconnect(connection: string) {
-    setTimeout(()=> {
-      this.namespace.disconnect(connection);
-    }, this.pingTimeout)
+    this.namespace.disconnect(connection);
   }
 
   closeByToken(token: string) {

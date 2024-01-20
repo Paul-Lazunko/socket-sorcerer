@@ -3,7 +3,7 @@ node_modules
 *.lock
 tsconfig.json
 .editorconfig
-.eslint.js
+.eslintrc.js
 .prettierrc
 .gitignore
 .npmignore

@@ -32,15 +32,9 @@ export abstract class AbstractConnection {
 
   public send(params: Omit<MessagingParams, 'channel'>) {
     const { webSocket } = this.options;
-    return new Promise((resolve, reject) => {
-      webSocket.send(JSON.stringify(params), (error: Error) => {
-        if (error) {
-          reject(error)
-        } else {
-          resolve(true)
-        }
-      })
-    });
+    setTimeout(() => {
+      webSocket.send(JSON.stringify(params));
+    },0)
   }
 
 

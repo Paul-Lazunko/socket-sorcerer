@@ -12,10 +12,7 @@ export abstract class AbstractChannel {
   }
 
   public send(params: Omit<MessagingParams, 'channel'>) {
-    this.connections.forEach( (connection: AbstractConnection) => {
-      // provide handling or verbose param
-      connection.send(params).catch(console.error);
-    })
+    this.connections.forEach( (connection: AbstractConnection) => connection.send(params))
   }
 
 }

@@ -27,6 +27,7 @@ export class WebSocketServer {
   private readonly manager: SocketManager;
   private readonly pingInterval: number;
   private readonly pingTimeout: number;
+  private readonly disablePing: boolean;
   private readonly authTimeout: number;
   private readonly authEventName: string;
 
@@ -39,6 +40,7 @@ export class WebSocketServer {
     this.authTimers = new Map<string, any>();
     this.pingInterval = options.pingInterval;
     this.pingTimeout = options.pingTimeout;
+    this.disablePing = options.disablePing;
     this.authTimeout = options.authenticate.authTimeout;
     this.authEventName = options.authenticate.eventName;
     this.authEventHandler = options.authenticate.eventHandler;
@@ -84,10 +86,14 @@ export class WebSocketServer {
 
   private close(id: string, uid: string, token: string) {
     // Clear timers
-    clearTimeout(this.pingTimers.get(id));
-    this.pingTimers.delete(id);
-    clearTimeout(this.authTimers.get(id));
-    this.authTimers.delete(id);
+    if (this.pingTimers.has(id)) {
+      clearTimeout(this.pingTimers.get(id));
+      this.pingTimers.delete(id);
+    }
+    if (this.authTimers.has(id)) {
+      clearTimeout(this.authTimers.get(id));
+      this.authTimers.delete(id);
+    }
     // Leave all rooms and close socket
     this.manager.disconnect(id);
     // emit disconnect event
@@ -145,17 +151,19 @@ export class WebSocketServer {
   }
 
   private setPingTimeout(webSocket: WebSocket, id: string) {
-    const self = this;
-    const timeout = this.pingTimers.get(id);
-    if (timeout) {
-      clearTimeout(timeout);
+    if (!this.disablePing) {
+      const self = this;
+      const timeout = this.pingTimers.get(id);
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      this.pingTimers.set(id, setTimeout(() => {
+        webSocket.close();
+      }, self.pingTimeout));
+      setTimeout(() => {
+        webSocket.send(JSON.stringify({ event: PING_EVENT_NAME, data: {}}))
+      }, self.pingInterval)
     }
-    this.pingTimers.set(id, setTimeout(() => {
-      webSocket.close();
-    }, self.pingTimeout));
-    setTimeout(() => {
-      webSocket.send(JSON.stringify({ event: PING_EVENT_NAME, data: {}}))
-    }, self.pingInterval)
   }
 
   private setAuthTimeout(webSocket: WebSocket, id: string) {

@@ -7,9 +7,10 @@ interface Verbose {
 }
 
 export interface WebSocketServerOptions {
-  serverOptions: ServerOptions
-  pingInterval: number
-  pingTimeout: number
+  serverOptions: ServerOptions;
+  pingInterval: number;
+  pingTimeout: number;
+  disablePing?: boolean;
   authenticate: SocketAuthenticateOptions
   events: Record<string, (...args: any[]) => any | Promise<any>>,
   verbose?: Verbose

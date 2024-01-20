@@ -32,9 +32,7 @@ export abstract class AbstractConnection {
 
   public send(params: Omit<MessagingParams, 'channel'>) {
     const { webSocket } = this.options;
-    setTimeout(() => {
-      webSocket.send(JSON.stringify(params));
-    },0)
+    webSocket.send(JSON.stringify(params));
   }
 
 

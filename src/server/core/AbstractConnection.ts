@@ -32,17 +32,15 @@ export abstract class AbstractConnection {
 
   public send(params: Omit<MessagingParams, 'channel'>) {
     const { webSocket } = this.options;
-    if (webSocket && webSocket.OPEN) {
-      return new Promise((resolve, reject) => {
-        webSocket.send(JSON.stringify(params), (error: Error) => {
-          if (error) {
-            reject(error)
-          } else {
-            resolve(true)
-          }
-        })
-      });
-    }
+    return new Promise((resolve, reject) => {
+      webSocket.send(JSON.stringify(params), (error: Error) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(true)
+        }
+      })
+    });
   }
 
 

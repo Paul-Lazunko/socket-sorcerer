@@ -1,14 +1,14 @@
 import { EventEmitter } from 'events';
-import { SocketManagerOptions } from '../client/options';
-import { Namespace } from './core';
-import { ChannelingParams, ConnectionJoinChannel, MessagingParams, UserJoinChannel } from './params';
 import { WebSocket } from 'ws';
+import { Namespace } from '@server-core';
+import { SocketManagerOptions } from '@server-options';
+import { ChannelingParams, ConnectionJoinChannel, MessagingParams, UserJoinChannel } from '@server-params';
 
 export class SocketManager {
   public namespace: Namespace;
   public eventEmitter: EventEmitter;
 
-  constructor(options: SocketManagerOptions){
+  constructor(options: SocketManagerOptions) {
     this.namespace = options.namespace;
     this.eventEmitter = options.eventEmitter;
   }

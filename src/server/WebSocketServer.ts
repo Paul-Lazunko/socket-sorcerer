@@ -68,7 +68,6 @@ export class WebSocketServer {
         interval: verbose.interval
       })
     }
-
     this.server = new Server({ ...options.serverOptions, clientTracking: false });
     this.server.on('connection', this.onConnection.bind(this));
   }
@@ -79,8 +78,8 @@ export class WebSocketServer {
       channels,
       groupChannels: channels - users - connections,
       users,
-      activeConnections: this.pingTimers.size,
-      authorizedConnections: connections
+      authorizedConnections: connections,
+      activeConnections: this.pingTimers.size
     })
   }
 
@@ -154,17 +153,17 @@ export class WebSocketServer {
     }
     this.pingTimers.set(id, setTimeout(() => {
       webSocket.close();
-    }, this.pingTimeout));
+    }, self.pingTimeout));
     setTimeout(() => {
       webSocket.send(JSON.stringify({ event: PING_EVENT_NAME, data: {}}))
-    }, this.pingInterval)
+    }, self.pingInterval)
   }
 
   private setAuthTimeout(webSocket: WebSocket, id: string) {
     const self = this;
     this.authTimers.set(id, setTimeout(() => {
       webSocket.close();
-    }, this.authTimeout))
+    }, self.authTimeout))
   }
 
   public getManager() {

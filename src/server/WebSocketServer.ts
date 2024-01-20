@@ -44,7 +44,8 @@ export class WebSocketServer {
     this.authEventHandler = options.authenticate.eventHandler;
     this.manager = new SocketManager({
       eventEmitter: this.eventEmitter,
-      namespace: new Namespace()
+      namespace: new Namespace(),
+      pingTimeout: this.pingInterval
     });
     const isSetAnyEventHandler: boolean = Boolean(options.events[ANY_EVENT_MARKER]);
     if ( this.authEventName ) {

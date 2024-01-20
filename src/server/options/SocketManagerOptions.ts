@@ -3,5 +3,6 @@ import { Namespace } from '../core';
 
 export interface SocketManagerOptions {
   namespace: Namespace,
-  eventEmitter: EventEmitter
+  eventEmitter: EventEmitter,
+  pingTimeout: number
 }

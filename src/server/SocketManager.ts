@@ -1,16 +1,18 @@
 import { EventEmitter } from 'events';
 import { WebSocket } from 'ws';
-import { Namespace } from '@server-core';
+import { AbstractChannel, Namespace } from '@server-core';
 import { SocketManagerOptions } from '@server-options';
 import { ChannelingParams, ConnectionJoinChannel, MessagingParams, UserJoinChannel } from '@server-params';
 
 export class SocketManager {
   public namespace: Namespace;
   public eventEmitter: EventEmitter;
+  public pingTimeout: number;
 
   constructor(options: SocketManagerOptions) {
     this.namespace = options.namespace;
     this.eventEmitter = options.eventEmitter;
+    this.pingTimeout = options.pingTimeout;
   }
 
   connect(webSocket: WebSocket, token: string,  user: string, connection: string, channels: string[],) {
@@ -18,7 +20,9 @@ export class SocketManager {
   }
 
   disconnect(connection: string) {
-    return this.namespace.disconnect(connection);
+    setTimeout(()=> {
+      this.namespace.disconnect(connection);
+    }, this.pingTimeout)
   }
 
   closeByToken(token: string) {
@@ -49,7 +53,7 @@ export class SocketManager {
 
   public send(params: MessagingParams): void {
     const { channel, ...message } = params;
-    const targetChannel = this.namespace.getChannel(channel);
+    const targetChannel: AbstractChannel = this.namespace.getChannel(channel);
     if (targetChannel) {
       targetChannel.send(message);
     }

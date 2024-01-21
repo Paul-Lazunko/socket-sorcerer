@@ -124,8 +124,10 @@ export class WebSocketServer {
               if ( !uid ) {
                 throw new Error('Authentication failed');
               }
-              clearTimeout(this.authTimers.get(id));
-              this.authTimers.delete(id);
+              if (this.authTimers.has(id)) {
+                clearTimeout(this.authTimers.get(id));
+                this.authTimers.delete(id);
+              }
               uid = uid.toString()
               const tokenKey = typeof params.data.token === 'object' ? params.data.token.token : params.data.token;
               this.manager.connect(webSocket, tokenKey, uid, id, []);

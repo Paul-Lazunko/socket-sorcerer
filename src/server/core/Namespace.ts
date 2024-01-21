@@ -55,7 +55,7 @@ export class Namespace extends AbstractNamespace {
     this.deleteConnection(cid);
   }
   public disconnectByToken(token: string) {
-    if (this.connectionsByToken.has(token)) {
+    if (token && this.connectionsByToken.has(token)) {
       this.deleteConnection(this.connectionsByToken.get(token));
 
     }

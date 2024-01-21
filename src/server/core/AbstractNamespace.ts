@@ -40,16 +40,22 @@ export abstract class AbstractNamespace {
   public connectionLeaveChannel(id: string, name: string) {
     const channel: AbstractChannel = this.channels.get(name);
     const connection: AbstractConnection = this.connections.get(id);
-    const user: AbstractUser = connection.user;
-    channel.connections.delete(id);
-    connection.channels.delete(name);
-    if (user.channels.has(name) && user.connections.size === 1) {
-      channel.users.delete(user.id);
-      user.channels.delete(name)
+    if (connection) {
+      const user: AbstractUser = connection.user;
+      if (user?.channels.has(name) && user?.connections.size === 1) {
+        channel.users.delete(user.id);
+        user.channels.delete(name)
+      }
     }
-    if (!channel.connections.size) {
-      this.channels.delete(name);
+    if (channel) {
+      channel.connections.delete(id);
+      connection.channels.delete(name);
+
+      if (!channel.connections.size) {
+        this.channels.delete(name);
+      }
     }
+
   }
 
   public userJoinChannel(id: string, name: string) {

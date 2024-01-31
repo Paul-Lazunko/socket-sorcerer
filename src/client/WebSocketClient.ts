@@ -65,7 +65,7 @@ export class WebSocketClient {
     this.setSocket()
   }
 
-  setToken(token: string) {
+  setToken(token: any) {
     this.token = token;
   }
 

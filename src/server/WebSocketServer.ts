@@ -11,7 +11,7 @@ import {
   PONG_EVENT_NAME,
   ANY_EVENT_MARKER,
   ANY_EVENT_EXCEPTIONS,
-  AFTER_CONNECT_EVENT_NAME
+  AFTER_CONNECT_EVENT_NAME, AUTH_SUCCESS_EVENT, AUTH_FAILED_EVENT,
 } from '@server-constants';
 import { WebSocketServerOptions } from '@server-options';
 import { MessagingParams } from '@server-params';
@@ -84,7 +84,7 @@ export class WebSocketServer {
     })
   }
 
-  private close(id: string, uid: string, token: string) {
+  private close(id: string, uid: string, token: string, ip: string) {
     // Clear timers
     if (this.pingTimers.has(id)) {
       clearTimeout(this.pingTimers.get(id));
@@ -107,7 +107,7 @@ export class WebSocketServer {
     const ip = req.socket.remoteAddress;
 
     webSocket.on('close', () => {
-      this.close(id, uid, token);
+      this.close(id, uid, token, ip);
     });
 
     webSocket.on('message', async (data: string) => {
@@ -122,7 +122,8 @@ export class WebSocketServer {
             try {
               uid = await this.authEventHandler(params.data.token);
               if ( !uid ) {
-                throw new Error('Authentication failed');
+                webSocket.send(JSON.stringify({ event: AUTH_FAILED_EVENT, data: {} }));
+                webSocket.close()
               }
               if (this.authTimers.has(id)) {
                 clearTimeout(this.authTimers.get(id));
@@ -132,9 +133,10 @@ export class WebSocketServer {
               const tokenKey = typeof params.data.token === 'object' ? params.data.token.token : params.data.token;
               this.manager.connect(webSocket, tokenKey, uid, id, []);
               this.eventEmitter.emit(CONNECT_EVENT_NAME, id, uid, params.data.token, ip);
-              token = params.data.token
-            } catch ( authError ) {
-              console.log({ authError })
+              token = params.data.token;
+              webSocket.send(JSON.stringify({ event: AUTH_SUCCESS_EVENT, data: {}}))
+            } catch ( error ) {
+              console.log({ error })
               webSocket.close();
             }
             break;
@@ -148,6 +150,7 @@ export class WebSocketServer {
     });
 
     this.setPingTimeout(webSocket, id);
+    webSocket.send(JSON.stringify({ event: PING_EVENT_NAME, data: {}}))
     this.setAuthTimeout(webSocket, id);
     webSocket.send(JSON.stringify({ event: this.authEventName, data: {}}));
   }

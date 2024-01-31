@@ -1,8 +1,10 @@
 import {
   ANY_EVENT_EXCEPTIONS,
   ANY_EVENT_MARKER,
+  AUTH_FAILED_EVENT,
+  AUTH_SUCCESS_EVENT,
   PING_EVENT_NAME,
-  PONG_EVENT_NAME
+  PONG_EVENT_NAME,
 } from './constants';
 import { WebSocketClientOptions } from './options';
 import { EventEmitter } from './core';
@@ -16,6 +18,7 @@ export class WebSocketClient {
   private readonly reconnectInterval: number;
   private readonly authEventName: string;
   public isConnected: boolean;
+  public isAuthorized: boolean;
   private framesQueue: string[];
   private isActive: boolean;
   private onOpenHandler: any;
@@ -25,6 +28,7 @@ export class WebSocketClient {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
     this.isActive = true;
+    this.isAuthorized = false;
     this.doReconnectOnClose = options.doReconnectOnClose;
     this.reconnectInterval = options.reconnectInterval;
     this.authEventName = options.authEventName;
@@ -86,6 +90,12 @@ export class WebSocketClient {
           case PING_EVENT_NAME:
             this.emit(PONG_EVENT_NAME,{},  true);
             this.eventEmitter.emit(event, data);
+            break;
+         case AUTH_SUCCESS_EVENT:
+           this.isAuthorized = true;
+            break;
+         case AUTH_FAILED_EVENT:
+           this.isAuthorized = true;
             break;
           case this.authEventName:
             this.emit(this.authEventName, { token: this.token }, true);

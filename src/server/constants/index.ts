@@ -1,4 +1,6 @@
 export const PING_EVENT_NAME = 'ping'
+export const AUTH_SUCCESS_EVENT = 'authSuccess'
+export const AUTH_FAILED_EVENT = 'authFailed'
 export const PONG_EVENT_NAME = 'pong'
 export const CONNECT_EVENT_NAME = 'connect'
 export const AFTER_CONNECT_EVENT_NAME = 'afterConnect'

@@ -54,7 +54,6 @@ export class WebSocketClient {
         this.eventEmitter.on(event, options.events[event])
       }
     }
-    this.setSocket();
   }
 
   deactivate() {
@@ -74,8 +73,8 @@ export class WebSocketClient {
   }
 
   setSocket() {
-    if ( this.socket ) {
-      this.socket.close();
+    if ( [0,1].includes(this.socket?.readyState)) {
+     return;
     }
     // @ts-ignore
     this.socket = new window['WebSocket'](this.serverUrl);
@@ -95,7 +94,7 @@ export class WebSocketClient {
            this.isAuthorized = true;
             break;
          case AUTH_FAILED_EVENT:
-           this.isAuthorized = true;
+           this.isAuthorized = false;
             break;
           case this.authEventName:
             this.emit(this.authEventName, { token: this.token }, true);
@@ -108,7 +107,6 @@ export class WebSocketClient {
         console.error({ e })
       }
     });
-
   }
 
   private onClose() {
@@ -124,7 +122,7 @@ export class WebSocketClient {
   }
 
   private doReconnect() {
-    if( this.doReconnectOnClose ) {
+    if( !this.isConnected && this.doReconnectOnClose && this.isActive ) {
       setTimeout(() => {
         this.setSocket();
       }, this.reconnectInterval)

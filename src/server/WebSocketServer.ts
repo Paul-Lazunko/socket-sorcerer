@@ -151,7 +151,6 @@ export class WebSocketServer {
     });
 
     this.setPingTimeout(webSocket, id);
-    webSocket.send(JSON.stringify({ event: PING_EVENT_NAME, data: {}}))
     this.setAuthTimeout(webSocket, id);
     webSocket.send(JSON.stringify({ event: this.authEventName, data: {}}));
   }

@@ -104,7 +104,7 @@ export class WebSocketServer {
     const id = v4();
     let uid: string;
     let token: any;
-    const ip = req.headers['x-forwarded-for'] as string || req.socket.remoteAddress ;
+    const ip = req.headers['x-forwarded-for'] as string || req.headers['x-real-ip'] as string || req.socket.remoteAddress ;
 
 
     webSocket.on('close', () => {

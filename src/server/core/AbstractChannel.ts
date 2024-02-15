@@ -12,7 +12,7 @@ export abstract class AbstractChannel {
   }
 
   public send(params: Omit<MessagingParams, 'channel'>) {
-    this.connections.forEach( (connection: AbstractConnection) => connection.send(params))
+    this.connections.forEach( (connection: AbstractConnection) => connection?.send(params))
   }
 
 }

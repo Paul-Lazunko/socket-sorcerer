@@ -124,7 +124,8 @@ export class WebSocketServer {
               uid = await this.authEventHandler(params.data.token);
               if ( !uid ) {
                 webSocket.send(JSON.stringify({ event: AUTH_FAILED_EVENT, data: {} }));
-                webSocket.close()
+                webSocket.close();
+                return;
               }
               if (this.authTimers.has(id)) {
                 clearTimeout(this.authTimers.get(id));

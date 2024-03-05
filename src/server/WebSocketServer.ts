@@ -138,7 +138,8 @@ export class WebSocketServer {
               token = params.data.token;
               webSocket.send(JSON.stringify({ event: AUTH_SUCCESS_EVENT, data: {}}))
             } catch ( error ) {
-              console.log({ error })
+              console.log({ error });
+              webSocket.send(JSON.stringify({ event: AUTH_FAILED_EVENT, data: {} }));
               webSocket.close();
             }
             break;

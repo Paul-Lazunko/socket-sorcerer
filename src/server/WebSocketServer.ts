@@ -97,18 +97,15 @@ export class WebSocketServer {
     // Leave all rooms and close socket
     this.manager.disconnect(id);
     // emit disconnect event
-    this.eventEmitter.emit(DISCONNECT_EVENT_NAME, id, uid, token)
+    this.eventEmitter.emit(DISCONNECT_EVENT_NAME, id, uid, token, ip)
   }
 
   private onConnection(webSocket: WebSocket, req: IncomingMessage) {
     const id = v4();
     let uid: string;
     let token: any;
-    const ip = req.headers['X-Forwarded-For'] as string
+    const ip = req.headers['x-real-ip'] as string
       || req.headers['x-forwarded-for'] as string
-      || req.headers['X-Real-IP'] as string
-      || req.headers['X-Real-Ip'] as string
-      || req.headers['x-real-ip'] as string
       || req.socket.remoteAddress ;
 
     webSocket.on('close', () => {

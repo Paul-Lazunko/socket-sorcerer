@@ -1,6 +1,6 @@
 {
   "name": "socket-sorcerer",
-  "version": "6.1.8",
+  "version": "6.1.10",
   "description": "Node.js Websocket Framework",
   "author": "Pavlo Lazunko <plavel@gmail.com>",
   "keywords": [

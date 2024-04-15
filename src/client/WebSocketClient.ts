@@ -27,7 +27,7 @@ export class WebSocketClient {
   constructor(options: WebSocketClientOptions) {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
-    this._isActive = true;
+    this._isActive = false;
     this.isAuthorized = false;
     this.doReconnectOnClose = options.doReconnectOnClose;
     this.reconnectInterval = options.reconnectInterval;
@@ -63,6 +63,8 @@ export class WebSocketClient {
   deactivate() {
     this.doReconnectOnClose = false;
     this._isActive = false;
+    this.isAuthorized = false;
+    this.isConnected = false;
     this.socket.close();
   }
 

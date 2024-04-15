@@ -20,14 +20,14 @@ export class WebSocketClient {
   public isConnected: boolean;
   public isAuthorized: boolean;
   private framesQueue: string[];
-  private isActive: boolean;
+  private _isActive: boolean;
   private onOpenHandler: any;
   private onCloseHandler: any;
 
   constructor(options: WebSocketClientOptions) {
     this.serverUrl = options.serverUrl;
     this.token = options.token;
-    this.isActive = true;
+    this._isActive = true;
     this.isAuthorized = false;
     this.doReconnectOnClose = options.doReconnectOnClose;
     this.reconnectInterval = options.reconnectInterval;
@@ -56,15 +56,19 @@ export class WebSocketClient {
     }
   }
 
+  get isActive() {
+    return this._isActive;
+  }
+
   deactivate() {
     this.doReconnectOnClose = false;
-    this.isActive = false;
+    this._isActive = false;
     this.socket.close();
   }
 
   activate() {
     this.doReconnectOnClose = true;
-    this.isActive = true;
+    this._isActive = true;
     this.setSocket()
   }
 
@@ -122,7 +126,7 @@ export class WebSocketClient {
   }
 
   private doReconnect() {
-    if( !this.isConnected && this.doReconnectOnClose && this.isActive ) {
+    if( !this.isConnected && this.doReconnectOnClose && this._isActive ) {
       setTimeout(() => {
         this.setSocket();
       }, this.reconnectInterval)
@@ -145,7 +149,7 @@ export class WebSocketClient {
   };
 
   public emit (event: string, data: any, highPriority: boolean = false) {
-    if ( this.isActive ) {
+    if ( this._isActive ) {
       const params = JSON.stringify({
         event,
         data

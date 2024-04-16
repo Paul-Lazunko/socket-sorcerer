@@ -83,10 +83,21 @@ export class WebSocketClient {
     this.token = token;
   }
 
+  reactivate() {
+    if ( [0,1].includes(this.socket?.readyState)) {
+      this.socket.close();
+    }
+    this._setSocket();
+  }
+
   setSocket() {
     if ( [0,1].includes(this.socket?.readyState)) {
      return;
     }
+    this._setSocket();
+  }
+
+  private _setSocket() {
     // @ts-ignore
     this.socket = new window['WebSocket'](this.serverUrl);
     this.socket.addEventListener('open', this.onOpen.bind(this));
@@ -101,14 +112,14 @@ export class WebSocketClient {
             this.emit(PONG_EVENT_NAME,{},  true);
             this.eventEmitter.emit(event, data);
             break;
-         case AUTH_SUCCESS_EVENT:
-           this.isAuthorized = true;
-           this.eventEmitter.emit(event, data);
-           break;
-         case AUTH_FAILED_EVENT:
-           this.isAuthorized = false;
-           this.eventEmitter.emit(event, data);
-           break;
+          case AUTH_SUCCESS_EVENT:
+            this.isAuthorized = true;
+            this.eventEmitter.emit(event, data);
+            break;
+          case AUTH_FAILED_EVENT:
+            this.isAuthorized = false;
+            this.eventEmitter.emit(event, data);
+            break;
           case this.authEventName:
             this.emit(this.authEventName, { token: this.token }, true);
             break;

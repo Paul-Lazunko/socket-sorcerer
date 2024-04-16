@@ -12,11 +12,11 @@ import { EventEmitter } from './core';
 export class WebSocketClient {
   private socket: any;
   private eventEmitter: EventEmitter;
-  private readonly serverUrl: string;
+  private serverUrl: string;
   private token: string;
   private doReconnectOnClose: boolean;
-  private readonly reconnectInterval: number;
-  private readonly authEventName: string;
+  private reconnectInterval: number;
+  private authEventName: string;
   public isConnected: boolean;
   public isAuthorized: boolean;
   private framesQueue: string[];
@@ -25,15 +25,20 @@ export class WebSocketClient {
   private onCloseHandler: any;
 
   constructor(options: WebSocketClientOptions) {
-    this.serverUrl = options.serverUrl;
-    this.token = options.token;
     this._isActive = false;
     this.isAuthorized = false;
+    this.eventEmitter = new EventEmitter();
+    this.framesQueue = [];
+    this.setOptions(options);
+  }
+
+
+  public setOptions(options: WebSocketClientOptions) {
+    this.serverUrl = options.serverUrl;
+    this.token = options.token;
     this.doReconnectOnClose = options.doReconnectOnClose;
     this.reconnectInterval = options.reconnectInterval;
     this.authEventName = options.authEventName;
-    this.eventEmitter = new EventEmitter();
-    this.framesQueue = [];
     if ( options.hooks ) {
       if (options.hooks.onOpen) {
         this.onOpenHandler = options.hooks.onOpen;
@@ -98,10 +103,12 @@ export class WebSocketClient {
             break;
          case AUTH_SUCCESS_EVENT:
            this.isAuthorized = true;
-            break;
+           this.eventEmitter.emit(event, data);
+           break;
          case AUTH_FAILED_EVENT:
            this.isAuthorized = false;
-            break;
+           this.eventEmitter.emit(event, data);
+           break;
           case this.authEventName:
             this.emit(this.authEventName, { token: this.token }, true);
             break;
@@ -117,6 +124,7 @@ export class WebSocketClient {
 
   private onClose() {
     this.isConnected = false;
+    this.isAuthorized = false;
     if ( typeof this.onCloseHandler === 'function') {
       this.onCloseHandler()
     }

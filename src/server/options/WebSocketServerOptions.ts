@@ -11,6 +11,7 @@ export interface WebSocketServerOptions {
   pingInterval: number;
   pingTimeout: number;
   disablePing?: boolean;
+  optionalAuth?: boolean;
   authenticate: SocketAuthenticateOptions
   events: Record<string, (...args: any[]) => any | Promise<any>>,
   verbose?: Verbose

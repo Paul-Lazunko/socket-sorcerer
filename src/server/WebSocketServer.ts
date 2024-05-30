@@ -28,6 +28,7 @@ export class WebSocketServer {
   private readonly pingInterval: number;
   private readonly pingTimeout: number;
   private readonly disablePing: boolean;
+  private readonly optionalAuth: boolean;
   private readonly authTimeout: number;
   private readonly authEventName: string;
 
@@ -41,6 +42,7 @@ export class WebSocketServer {
     this.pingInterval = options.pingInterval;
     this.pingTimeout = options.pingTimeout;
     this.disablePing = options.disablePing;
+    this.optionalAuth = options.optionalAuth;
     this.authTimeout = options.authenticate.authTimeout;
     this.authEventName = options.authenticate.eventName;
     this.authEventHandler = options.authenticate.eventHandler;
@@ -125,7 +127,9 @@ export class WebSocketServer {
               uid = await this.authEventHandler(params.data.token);
               if ( !uid ) {
                 webSocket.send(JSON.stringify({ event: AUTH_FAILED_EVENT, data: {} }));
-                webSocket.close();
+                if (!this.optionalAuth) {
+                  webSocket.close();
+                }
                 return;
               }
               if (this.authTimers.has(id)) {
@@ -154,7 +158,9 @@ export class WebSocketServer {
     });
 
     this.setPingTimeout(webSocket, id);
-    this.setAuthTimeout(webSocket, id);
+    if (!this.optionalAuth) {
+      this.setAuthTimeout(webSocket, id);
+    }
     webSocket.send(JSON.stringify({ event: this.authEventName, data: {}}));
   }
 

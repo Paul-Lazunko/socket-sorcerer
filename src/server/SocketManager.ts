@@ -59,8 +59,10 @@ export class SocketManager {
   public send(params: MessagingParams): void {
     const { channel, ...message } = params;
     const targetChannel: AbstractChannel = this.namespace.getChannel(channel);
-    this.logger.log(`Sending event ${message.event} to channel ${channel}`);
-    this.logger.log({ channel: targetChannel });
+    if (this.verbose) {
+      this.logger.log(`Sending event ${message.event} to channel ${channel}`);
+      this.logger.log({ channel: targetChannel });
+    }
     if (targetChannel) {
       targetChannel.send(message);
     } else {

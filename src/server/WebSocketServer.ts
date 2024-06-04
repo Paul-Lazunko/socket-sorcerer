@@ -32,12 +32,14 @@ export class WebSocketServer {
   private readonly authTimeout: number;
   private readonly authEventName: string;
   private readonly logger: any;
+  private verbose: boolean;
 
   private readonly authEventHandler: (value: string) => Promise<string>;
 
   constructor(options: WebSocketServerOptions) {
     // Initialization
     this.logger = options.logger || console;
+    this.verbose = options.verbose?.enable || false;
     this.eventEmitter = new EventEmitter();
     this.pingTimers = new Map<string, any>();
     this.authTimers = new Map<string, any>();
@@ -68,7 +70,6 @@ export class WebSocketServer {
 
     const { verbose } = options;
     if (verbose?.enable) {
-
       if (verbose.displayMetricsInterval) {
         pseudoInterval({
           handler: this.displayStats.bind(this),
@@ -124,7 +125,9 @@ export class WebSocketServer {
     webSocket.on('message', async (data: string) => {
       try {
         const params: MessagingParams = JSON.parse(data);
-        this.logger.log(`Received event ${params?.event} from socket ${id} user ${uid} token ${token}`)
+        if (this.verbose) {
+          this.logger.log(`Received event ${params?.event} from socket ${id} user ${uid} token ${token}`)
+        }
         switch (params?.event) {
           case PONG_EVENT_NAME:
             this.setPingTimeout(webSocket, id);

@@ -31,11 +31,13 @@ export class WebSocketServer {
   private readonly optionalAuth: boolean;
   private readonly authTimeout: number;
   private readonly authEventName: string;
+  private readonly logger: any;
 
   private readonly authEventHandler: (value: string) => Promise<string>;
 
   constructor(options: WebSocketServerOptions) {
     // Initialization
+    this.logger = options.logger || console;
     this.eventEmitter = new EventEmitter();
     this.pingTimers = new Map<string, any>();
     this.authTimers = new Map<string, any>();
@@ -47,7 +49,9 @@ export class WebSocketServer {
     this.authEventName = options.authenticate.eventName;
     this.authEventHandler = options.authenticate.eventHandler;
     this.manager = new SocketManager({
-      namespace: new Namespace()
+      namespace: new Namespace(),
+      verbose: options.verbose?.enable || false,
+      logger: this.logger
     });
     const isSetAnyEventHandler: boolean = Boolean(options.events[ANY_EVENT_MARKER]);
     if ( this.authEventName ) {
@@ -64,12 +68,15 @@ export class WebSocketServer {
 
     const { verbose } = options;
     if (verbose?.enable) {
-      pseudoInterval({
-        handler: this.displayStats.bind(this),
-        isActive: true,
-        forceExit: false,
-        interval: verbose.interval
-      })
+
+      if (verbose.displayMetricsInterval) {
+        pseudoInterval({
+          handler: this.displayStats.bind(this),
+          isActive: true,
+          forceExit: false,
+          interval: verbose.displayMetricsInterval
+        })
+      }
     }
     this.server = new Server({ ...options.serverOptions, clientTracking: false });
     this.server.on('connection', this.onConnection.bind(this));
@@ -117,6 +124,7 @@ export class WebSocketServer {
     webSocket.on('message', async (data: string) => {
       try {
         const params: MessagingParams = JSON.parse(data);
+        this.logger.log(`Received event ${params?.event} from socket ${id} user ${uid} token ${token}`)
         switch (params?.event) {
           case PONG_EVENT_NAME:
             this.setPingTimeout(webSocket, id);

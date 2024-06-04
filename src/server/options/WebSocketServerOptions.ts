@@ -3,7 +3,7 @@ import { SocketAuthenticateOptions } from './SocketAuthenticateOptions';
 
 interface Verbose {
   enable: boolean,
-  interval: number
+  displayMetricsInterval: number
 }
 
 export interface WebSocketServerOptions {
@@ -14,5 +14,6 @@ export interface WebSocketServerOptions {
   optionalAuth?: boolean;
   authenticate: SocketAuthenticateOptions
   events: Record<string, (...args: any[]) => any | Promise<any>>,
-  verbose?: Verbose
+  verbose?: Verbose;
+  logger?: any;
 }

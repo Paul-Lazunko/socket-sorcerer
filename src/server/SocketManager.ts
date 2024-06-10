@@ -31,11 +31,15 @@ export class SocketManager {
    if (channel) {
      if ((params as UserJoinChannel).user) {
        const user = (params as UserJoinChannel).user;
-       this.logger.log(`User ${user} is joining channel ${channel}`);
+       if (this.verbose) {
+         this.logger.log(`User ${user} is joining channel ${channel}`);
+       }
        return this.namespace.userJoinChannel((params as UserJoinChannel).user, channel);
      } else if ((params as ConnectionJoinChannel).connection) {
        const connection = (params as ConnectionJoinChannel).connection;
-       this.logger.log(`Socket ${connection} is joining channel ${channel}`);
+       if (this.verbose) {
+         this.logger.log(`Socket ${connection} is joining channel ${channel}`);
+       }
        return this.namespace.connectionJoinChannel((params as ConnectionJoinChannel).connection, channel)
      }
    }
@@ -46,11 +50,15 @@ export class SocketManager {
     if (channel) {
       if ((params as UserJoinChannel).user) {
         const user = (params as UserJoinChannel).user;
-        this.logger.log(`User ${user} is leaving channel ${channel}`);
+        if (this.verbose) {
+          this.logger.log(`User ${user} is leaving channel ${channel}`);
+        }
         return this.namespace.userLeaveChannel((params as UserJoinChannel).user, channel);
       } else if ((params as ConnectionJoinChannel).connection) {
         const connection = (params as ConnectionJoinChannel).connection;
-        this.logger.log(`Socket ${connection} is leaving channel ${channel}`);
+        if (this.verbose) {
+          this.logger.log(`Socket ${connection} is leaving channel ${channel}`);
+        }
         return this.namespace.connectionLeaveChannel((params as ConnectionJoinChannel).connection, channel)
       }
     }
@@ -66,7 +74,9 @@ export class SocketManager {
     if (targetChannel) {
       targetChannel.send(message);
     } else {
-      this.logger.log(`Channel ${channel} doesn't exist`);
+      if (this.verbose) {
+        this.logger.log(`Channel ${channel} doesn't exist`);
+      }
     }
   }
 

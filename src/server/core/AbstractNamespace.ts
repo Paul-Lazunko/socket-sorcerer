@@ -27,13 +27,14 @@ export abstract class AbstractNamespace {
   public connectionJoinChannel(id: string, name: string) {
     this.createChannel(name);
     const connection: AbstractConnection = this.connections.get(id);
-
-    const channel: AbstractChannel = this.channels.get(name);
-    connection.channels.set(name, channel);
-    channel.connections.set(id, connection);
-    // ?
-    if (connection.user) {
-      channel.users.set(connection.user.id, connection.user);
+    if (connection) {
+      const channel: AbstractChannel = this.channels.get(name);
+      connection.channels.set(name, channel);
+      channel.connections.set(id, connection);
+      // ?
+      if (connection.user) {
+        channel.users.set(connection.user.id, connection.user);
+      }
     }
   }
 

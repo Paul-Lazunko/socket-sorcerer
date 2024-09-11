@@ -79,7 +79,7 @@ export class WebSocketServer {
         })
       }
     }
-    this.server = new Server({ ...options.serverOptions, clientTracking: false });
+    this.server = new Server({ ...options.serverOptions, clientTracking: false, perMessageDeflate: false });
     this.server.on('connection', this.onConnection.bind(this));
   }
 

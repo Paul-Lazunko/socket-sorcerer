@@ -17,6 +17,7 @@ import { WebSocketServerOptions } from '@server-options';
 import { MessagingParams } from '@server-params';
 import { pseudoInterval } from '@server-helpers';
 import { SocketManager } from './SocketManager';
+import * as console from 'console';
 
 
 export class WebSocketServer {
@@ -81,6 +82,7 @@ export class WebSocketServer {
     }
     this.server = new Server({ ...options.serverOptions, clientTracking: false, perMessageDeflate: false });
     this.server.on('connection', this.onConnection.bind(this));
+    this.server.on('error', console.error)
   }
 
   private displayStats() {

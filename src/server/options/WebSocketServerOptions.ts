@@ -3,7 +3,7 @@ import { SocketAuthenticateOptions } from './SocketAuthenticateOptions';
 
 interface Verbose {
   enable: boolean,
-  displayMetricsOnly: boolean,
+  displayMetricsOnly?: boolean,
   displayMetricsInterval: number
 }
 

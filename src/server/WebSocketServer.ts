@@ -70,7 +70,7 @@ export class WebSocketServer {
     }
 
     const { verbose } = options;
-    if (verbose?.enable) {
+    if (verbose?.enable||verbose.displayMetricsOnly) {
       if (verbose.displayMetricsInterval) {
         pseudoInterval({
           handler: this.displayStats.bind(this),

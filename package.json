@@ -17,8 +17,8 @@
     "eslint": "eslint src/**/*.ts{,x}"
   },
   "dependencies": {
-    "uuid": "9.0.1",
-    "ws": "8.17.1"
+    "uuid": "10.0.0",
+    "ws": "8.18.0"
   },
   "devDependencies": {
     "@types/node": "20.10.6",

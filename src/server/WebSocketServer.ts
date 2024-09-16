@@ -121,9 +121,7 @@ export class WebSocketServer {
     const ip = req.headers['x-real-ip'] as string
       || req.headers['x-forwarded-for'] as string
       || req.socket.remoteAddress ;
-    if (ip && this.blackList.includes(ip)) {
-      return webSocket.close();
-    }
+
     webSocket.on('close', () => {
       this.close(id, uid, token, ip);
     });

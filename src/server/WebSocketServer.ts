@@ -34,6 +34,7 @@ export class WebSocketServer {
   private readonly authEventName: string;
   private readonly logger: any;
   private verbose: boolean;
+  private blackList: string[];
 
   private readonly authEventHandler: (value: string) => Promise<string>;
 
@@ -41,6 +42,7 @@ export class WebSocketServer {
     // Initialization
     this.logger = options.logger || console;
     this.verbose = options.verbose?.enable || false;
+    this.blackList = options.blackList || [];
     this.eventEmitter = new EventEmitter();
     this.pingTimers = new Map<string, any>();
     this.authTimers = new Map<string, any>();
@@ -82,7 +84,7 @@ export class WebSocketServer {
     }
     this.server = new Server({ ...options.serverOptions, clientTracking: false, perMessageDeflate: false });
     this.server.on('connection', this.onConnection.bind(this));
-    this.server.on('error', console.error)
+    this.server.on('error', console.error);
   }
 
   private displayStats() {
@@ -119,7 +121,9 @@ export class WebSocketServer {
     const ip = req.headers['x-real-ip'] as string
       || req.headers['x-forwarded-for'] as string
       || req.socket.remoteAddress ;
-
+    if (ip && this.blackList.includes(ip)) {
+      return webSocket.close();
+    }
     webSocket.on('close', () => {
       this.close(id, uid, token, ip);
     });
@@ -127,9 +131,8 @@ export class WebSocketServer {
     webSocket.on('error', (wsClientError) => {
       try {
         console.log({ wsClientError, uid, token, ip })
-        this.close(id, uid, token, ip);
+        webSocket.close();
       } catch(e) {
-        webSocket.close()
         console.error(e)
       }
     });

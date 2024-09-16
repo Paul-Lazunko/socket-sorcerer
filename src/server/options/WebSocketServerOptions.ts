@@ -17,4 +17,5 @@ export interface WebSocketServerOptions {
   events: Record<string, (...args: any[]) => any | Promise<any>>,
   verbose?: Verbose;
   logger?: any;
+  blackList?: string[]
 }

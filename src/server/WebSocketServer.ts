@@ -124,6 +124,16 @@ export class WebSocketServer {
       this.close(id, uid, token, ip);
     });
 
+    webSocket.on('error', (wsClientError) => {
+      try {
+        console.log({ wsClientError, uid, token, ip })
+        this.close(id, uid, token, ip);
+      } catch(e) {
+        webSocket.close()
+        console.error(e)
+      }
+    });
+
     webSocket.on('message', async (data: string) => {
       try {
         const params: MessagingParams = JSON.parse(data);

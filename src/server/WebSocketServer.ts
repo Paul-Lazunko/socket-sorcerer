@@ -144,7 +144,6 @@ export class WebSocketServer {
         switch (params?.event) {
           case PONG_EVENT_NAME:
             this.setPingTimeout(webSocket, id);
-            this.eventEmitter.emit(AFTER_CONNECT_EVENT_NAME, id, uid, token);
             break;
           case this.authEventName:
             try {

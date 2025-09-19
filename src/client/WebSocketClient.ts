@@ -84,16 +84,12 @@ export class WebSocketClient {
   }
 
   reactivate() {
-    if ( [0,1].includes(this.socket?.readyState)) {
-      this.socket.close();
-    }
+    this.socket.close();
     this._setSocket();
   }
 
   setSocket() {
-    if ( [0,1].includes(this.socket?.readyState)) {
-     return;
-    }
+    this.socket.close();
     this._setSocket();
   }
 

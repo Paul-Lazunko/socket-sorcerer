@@ -84,12 +84,12 @@ export class WebSocketClient {
   }
 
   reactivate() {
-    this.socket.close();
+    this.socket?.close();
     this._setSocket();
   }
 
   setSocket() {
-    this.socket.close();
+    this.socket?.close();
     this._setSocket();
   }
 
